@@ -1,0 +1,141 @@
+﻿
+@{
+    ViewBag.Title = "Đăng ký tài khoản";
+}
+
+@using BotDetect.Web.Mvc;
+
+@section css{
+
+    <link href="@BotDetect.Web.CaptchaUrls.Absolute.LayoutStyleSheetUrl" rel="stylesheet" type="text/css" />
+
+}
+
+@section scripts{
+    <script src="~/Helper/jquery-validate/jquery.validate.min.js"></script>
+    <script type="text/javascript">
+        $("#email").change(function () {
+            var email = $(this).val();
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("CheckEmail", "Account")",
+                data: { "email":  email},
+                success: function (data) {
+                    if (data == 0)
+                    {
+                        alert("abc");
+                        $("#msg").addClass("alert alert-warning")
+                        $("#msg").after('<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>');
+                        $("#msg").text("Email đã tồn tại !")
+                        
+                    }
+                }
+            });
+        });
+
+        $("#frmRegister").validate({
+            rules: {
+                UserName: {
+                    minlength:8,
+                    required: true
+                },
+                RawPassword: {
+                    required: true,
+                    minlength: 6
+                },
+                RePassword: {
+                    required: true,
+                    equalTo: "#RawPassword"
+                },
+                FullName: {
+                    minlength: 8,
+                    required: true
+                },
+                Email: {
+                    required: true,
+                    email: true
+                },
+                Address: {
+                    required: true
+                },
+            },
+            messages: {
+                UserName: {
+                    required: "Vui lòng nhập username",
+                    minlength: "Username phải có ít nhất 8 kí tự"
+                },
+                RawPassword: {
+                    required: "Vui lòng nhập mật khẩu",
+                    minlength: "Mật khẩu phải có ít nhất 6 kí tự"
+                },
+                RePassword: {
+                    required: "Vui lòng nhập lại mật khẩu",
+                    equalTo: "Mật khẩu nhập lại không đúng"
+                },
+                FullName: {
+                    required: "Vui lòng nhập họ tên",
+                    minlength: "Username phải có ít nhất 8 kí tự"
+                },
+                Email: {
+                    required: "Vui lòng nhập email",
+                    email: "Email không đúng định dạng"
+                },
+                Address: {
+                    required: "Vui lòng nhập địa chỉ"
+                },
+            }
+        });
+    </script>
+}
+
+@if (ViewBag.ErrorMsg != null)
+{
+    <center>
+        <div class="alert alert-danger" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <strong>Warning!</strong> @ViewBag.ErrorMsg
+        </div>
+    </center>
+}
+<div class="form-popup">
+    
+    <!-- FORM POPUP HEADLINE -->
+    <div class="form-popup-headline primary">
+        <h2>
+            Đăng ký tài khoản
+        </h2>
+        <p>Sau khi đăng ký tài khoản bạn sẽ được tặng 500$</p>
+    </div>
+    <!-- /FORM POPUP HEADLINE -->
+    <!-- FORM POPUP CONTENT -->
+    <div class="form-popup-content">
+        
+            <div id="msg"></div>
+            
+
+        <!-- action không ghi gì mặc định post về hàm trùng với tên View là controller trùng với tên thư mục chứa View  -->
+        <form id="frmRegister" method="post" action="">
+            <label class="rl-label required" for="email">Email</label>
+            <input name="Email" id="email" type="email" placeholder="Nhập email của bạn ở đây ...">
+            <label class="rl-label required" for="fullname">Họ tên</label>
+            <input name="FullName" id="fullname" type="text" placeholder="Nhập tên của bạn ở đây ...">
+            <label class="rl-label" for="username">Username</label>
+            <input name="Username" id="username" type="text" placeholder="Nhập username của bạn ở đây ...">
+            <label class="rl-label required" for="RawPassword">Password</label>
+            <input name="RawPassword" id="RawPassword" type="password" placeholder="Nhập password của bạn ở đây...">
+            <label class="rl-label required" for="RePassword">Nhập lại Password</label>
+            <input name="RePassword" id="RePassword" type="password" placeholder="Nhập lại password của bạn ở đây...">
+            <label class="rl-label required" for="Address">Địa chỉ</label>
+            <input name="Address" id="Address" type="text" placeholder="Nhập tên của bạn ở đây ...">
+            @{
+                MvcCaptcha exampleCaptcha = new MvcCaptcha("ExampleCaptcha");
+                exampleCaptcha.Reset(); // quan trọng
+            }
+            @Html.Captcha(exampleCaptcha)
+            <label class="rl-label required" for="CaptchaCode">Captcha</label>
+            <input name="CaptchaCode" id="CaptchaCode" type="text" placeholder="Nhập captcha code ở đây ...">
+            <button class="button mid dark">Đăng ký <span class="primary">ngay !</span></button>
+        </form>
+    </div>
+    <!-- /FORM POPUP CONTENT -->
+</div>

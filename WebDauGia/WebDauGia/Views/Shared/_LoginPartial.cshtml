@@ -1,0 +1,130 @@
+﻿@using WebDauGia.Helper
+@if (CurrentContext.IsLogged())
+{
+    <!-- USER QUICKVIEW -->
+    <div class="user-quickview">
+        <!-- USER AVATAR -->
+        <a href="@Url.Action("ProfileUser", "Account", new { id = @CurrentContext.GetUser().ID })">
+            <div class="outer-ring">
+                <div class="inner-ring"></div>
+                <figure class="user-avatar">
+                    <img src="@Url.Content(@CurrentContext.GetUser().Photo)" style="width:40px;height:40px;" alt="avatar">
+                </figure>
+            </div>
+        </a>
+        <!-- /USER AVATAR -->
+        <!-- USER INFORMATION -->
+        <p class="user-name">@CurrentContext.GetUser().Name</p>
+        <!-- SVG ARROW -->
+        <svg class="svg-arrow">
+            <use xlink:href="#svg-arrow"></use>
+        </svg>
+        <!-- /SVG ARROW -->
+        <p class="user-money">@CurrentContext.GetUser().Credits</p>
+        <!-- /USER INFORMATION -->
+        <!-- DROPDOWN -->
+        <ul class="dropdown small hover-effect closed">
+            @if (CurrentContext.GetUser().Status == 2)
+            {
+                <li class="dropdown-item">
+                    <div class="dropdown-triangle"></div>
+                    <a href="@Url.Action("ComfirmEmail", "Account")">Xác nhận tài khoản</a>
+                </li>
+            }
+            else if (CurrentContext.GetUser().Status == 1)
+            {
+                if (CurrentContext.GetUser().Role == 1)
+                {
+                    <li class="dropdown-item">
+                        <div class="dropdown-triangle"></div>
+                        <a href="@Url.Action("Approve", "Admin")">Duyệt sản phẩm</a>
+                    </li>
+                    <li class="dropdown-item">
+                        <div class="dropdown-triangle"></div>
+                        <a href="@Url.Action("ApproveSale", "Admin")">Duyệt người dùng bán hàng</a>
+                    </li>
+                    <li class="dropdown-item">
+                        <div class="dropdown-triangle"></div>
+                        <a href="@Url.Action("ManageUser", "Admin")">Quản lý người dùng</a>
+                    </li>
+                    <li class="dropdown-item">
+                        <div class="dropdown-triangle"></div>
+                        <a href="@Url.Action("ManageCategory", "Admin")">Quản lý thể loại</a>
+                    </li>
+                }
+                else
+                {
+                    <li class="dropdown-item">
+                        <div class="dropdown-triangle"></div>
+                        <a href="@Url.Action("ProfileUser", "Account", new { id = @CurrentContext.GetUser().ID })">Trang cá nhân</a>
+                    </li>
+                    <li class="dropdown-item">
+                        <a href="@Url.Action("Setting", "Account", new { id = @CurrentContext.GetUser().ID })">Cài đặt tài khoản</a>
+                    </li>
+                    if (CurrentContext.GetUser().DateEndSale > DateTime.Now)
+                    {
+                        <li class="dropdown-item">
+                            <a href="@Url.Action("UploadItem", "Account")">Đăng sản phẩm</a>
+                        </li>
+                    }
+                    <li class="dropdown-item">
+                        <a href="@Url.Action("ManageItems", "Account")">Quản lý sản phẩm</a>
+                    </li>
+                    <li class="dropdown-item">
+                        <a href="@Url.Action("JoiningAuction", "Account")">Sản phẩm đang đấu giá</a>
+                    </li>
+                    <li class="dropdown-item">
+                        <a href="@Url.Action("WinProduct", "Account")">Sản phẩm chiến thắng</a>
+                    </li>
+                    <li class="dropdown-item">
+                        <a href="@Url.Action("SaleProduct", "Account")">Sản phẩm đã bán</a>
+                    </li>
+                    <li class="dropdown-item">
+                        <a href="@Url.Action("HistoryAuction", "Account")">Lịch sử đấu giá</a>
+                    </li>
+                    
+
+                }
+            }          
+        </ul>
+        <!-- /DROPDOWN -->
+    </div>
+    <!-- /USER QUICKVIEW -->
+    <!-- ACCOUNT INFORMATION -->
+        <div class="account-information">
+            <a href="@Url.Action("WatchList", "Account")">
+                <div class="account-wishlist-quickview">
+                    <span class="icon-heart"></span>
+                </div>
+            </a>
+        </div>
+    <!-- /ACCOUNT INFORMATION -->
+    <!-- ACCOUNT ACTIONS -->
+        <div class="account-actions">
+            @if (CurrentContext.GetUser().Role != 1)
+            {
+                if (CurrentContext.GetUser().DateEndSale < DateTime.Now)
+                {
+                    <a href="@Url.Action("BecomeSeller", "Account")" class="button primary">Become a Seller</a>
+                }
+                else
+                {
+                    <a class="button primary">Còn lại: @((CurrentContext.GetUser().DateEndSale - DateTime.Now).Value.Days) Ngày</a>
+                }
+            }
+            
+            <a href="#" id="logoutLink" class="button secondary">Logout</a>
+        </div>
+    <!-- /ACCOUNT ACTIONS -->
+}
+else
+{
+    <!--LOGIN OR REGISTER -->
+    <div class="account-actions">
+        <a href="@Url.Action("Login","Account")" class="button secondary">Đăng nhập</a>
+        <a href="@Url.Action("Register","Account")" class="button primary">Đăng ký</a>
+    </div>
+}
+
+
+

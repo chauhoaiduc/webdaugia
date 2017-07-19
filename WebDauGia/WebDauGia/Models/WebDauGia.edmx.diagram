@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="e71f6629fcc942ebaecae8b7d4b1c499" Name="Diagram1">
+        <EntityTypeShape EntityType="WebDauGiaModel.Category" Width="1.5" PointX="3.75" PointY="1.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="WebDauGiaModel.CommentVendor" Width="1.5" PointX="2.75" PointY="7.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="WebDauGiaModel.CommentWinner" Width="1.5" PointX="8.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="WebDauGiaModel.DeniedProduct" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="WebDauGiaModel.DeniedVendor" Width="1.5" PointX="4.75" PointY="8.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="WebDauGiaModel.HistoryAuction" Width="1.5" PointX="3" PointY="3.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="WebDauGiaModel.Photo" Width="1.5" PointX="8.25" PointY="4.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="WebDauGiaModel.Product" Width="1.5" PointX="6" PointY="2.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="WebDauGiaModel.sysdiagram" Width="1.5" PointX="6.75" PointY="8.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="WebDauGiaModel.User" Width="1.5" PointX="0.75" PointY="3.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="WebDauGiaModel.WatchList" Width="1.5" PointX="8.75" PointY="7.75" IsExpanded="true" />
+        <AssociationConnector Association="WebDauGiaModel.FK_Products_Categories" ManuallyRouted="false" />
+        <AssociationConnector Association="WebDauGiaModel.FK_HistoryAuction_Products" ManuallyRouted="false" />
+        <AssociationConnector Association="WebDauGiaModel.FK_HistoryAuction_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="WebDauGiaModel.FK_Photos_Products" ManuallyRouted="false" />
+        <AssociationConnector Association="WebDauGiaModel.FK_Products_Users" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

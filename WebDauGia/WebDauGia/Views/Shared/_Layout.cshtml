@@ -1,0 +1,289 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Thế giới ngầm</title>
+    <link rel="stylesheet" href="~/css/vendor/simple-line-icons.css">
+    <link rel="stylesheet" href="~/css/vendor/magnific-popup.css">
+    <link rel="stylesheet" href="~/css/vendor/tooltipster.css">
+    <link rel="stylesheet" href="~/css/vendor/owl.carousel.css">
+    <link rel="stylesheet" href="~/css/style.css">
+    <link href="~/Content/ribbon.css" rel="stylesheet" />
+    <link href="~/Content/mystyle.css" rel="stylesheet" />
+    <link href="~/css/vendor/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/jquery-ui.css" rel="stylesheet" />
+    <link rel="icon" href="favicon.ico">
+    @RenderSection("css", required: false)
+</head>
+<body>
+    <!-- HEADER -->
+    <div class="header-wrap">
+        <header>
+            <!-- LOGO -->
+            <a href="@Url.Action("Index","Home")">
+                <figure class="logo">
+                    <img src="~/images/logo.png" alt="logo">
+                </figure>
+            </a>
+            <!-- /LOGO -->
+            <!-- MOBILE MENU HANDLER -->
+            <div class="mobile-menu-handler left primary">
+                <img src="~/images/pull-icon.png" alt="pull-icon">
+            </div>
+            <!-- /MOBILE MENU HANDLER -->
+            <!-- LOGO MOBILE -->
+            <a href="@Url.Action("Index","Home")">
+                <figure class="logo-mobile">
+                    <img src="~/images/logo_mobile.png" alt="logo-mobile">
+                </figure>
+            </a>
+            <!-- /LOGO MOBILE -->
+            <!-- MOBILE ACCOUNT OPTIONS HANDLER -->
+            <div class="mobile-account-options-handler right secondary">
+                <span class="icon-user"></span>
+            </div>
+            <!-- /MOBILE ACCOUNT OPTIONS HANDLER -->
+            <!-- USER BOARD -->
+            <div class="user-board">
+                @Html.Partial("_LoginPartial")
+            </div>
+            <!-- /USER BOARD -->
+        </header>
+    </div>
+    <!-- /HEADER -->
+    <!-- SIDE MENU -->
+    <div id="mobile-menu" class="side-menu left closed">
+        <!-- SVG PLUS -->
+        <svg class="svg-plus">
+            <use xlink:href="#svg-plus"></use>
+        </svg>
+        <!-- /SVG PLUS -->
+        <!-- SIDE MENU HEADER -->
+        <div class="side-menu-header">
+            <figure class="logo small">
+                <img src="../images/logo.png" alt="logo">
+            </figure>
+        </div>
+        <!-- /SIDE MENU HEADER -->
+        <!-- SIDE MENU TITLE -->
+        <p class="side-menu-title">Main Links</p>
+        <!-- /SIDE MENU TITLE -->
+        <!-- DROPDOWN -->
+        <ul class="dropdown dark hover-effect interactive">
+            <!-- DROPDOWN ITEM -->
+            <li class="dropdown-item">
+                <a href="@Url.Action("Index","Home")">Home</a>
+            </li>
+            <!-- /DROPDOWN ITEM -->
+            <!-- DROPDOWN ITEM -->
+            <li class="dropdown-item">
+                <a href="products.html">Products</a>
+            </li>
+            <!-- /DROPDOWN ITEM -->
+        </ul>
+        <!-- /DROPDOWN -->
+    </div>
+    <!-- /SIDE MENU -->
+    <!-- SIDE MENU -->
+    <div id="account-options-menu" class="side-menu right closed">
+        <svg class="svg-plus">
+            <use xlink:href="#svg-plus"></use>
+        </svg>
+        @Html.Partial("_LoginMobileMenuPartial")
+    </div>
+    <!-- /SIDE MENU -->
+    <!-- MAIN MENU -->
+    <div class="main-menu-wrap">
+        <div class="menu-bar">
+            <nav>
+                @Html.Action("Index", "Category")
+            </nav>
+        </div>
+    </div>
+    <!-- /MAIN MENU -->
+    @RenderBody()
+    <form id="frmLogout" method="post" action="@Url.Action("Logout","Account")"></form>
+    
+    <!-- FOOTER -->
+    <footer>
+        <!-- FOOTER TOP -->
+        <div id="footer-top-wrap">
+            <div id="footer-top">
+                <!-- COMPANY INFO -->
+                <div class="company-info">
+                    <figure class="logo small">
+                        <img src="~/images/logo_small.png" alt="logo-small">
+                    </figure>
+                    <p>
+                        Sàn đấu giá uy tính, đảm bảo lợi ích cả cho người mua và người bán.
+                    </p>
+                    <ul class="company-info-list">
+                        <li class="company-info-item">
+                            <span class="icon-present"></span>
+                            <p><span>850.296</span> Products</p>
+                        </li>
+                        <li class="company-info-item">
+                            <span class="icon-energy"></span>
+                            <p><span>1.207.300</span> Members</p>
+                        </li>
+                        <li class="company-info-item">
+                            <span class="icon-user"></span>
+                            <p><span>74.059</span> Sellers</p>
+                        </li>
+                    </ul>
+                    <!-- SOCIAL LINKS -->
+                    <ul class="social-links">
+                        <li class="social-link fb">
+                            <a href="#"></a>
+                        </li>
+                        <li class="social-link twt">
+                            <a href="#"></a>
+                        </li>
+                        <li class="social-link db">
+                            <a href="#"></a>
+                        </li>
+                        <li class="social-link rss">
+                            <a href="#"></a>
+                        </li>
+                    </ul>
+                    <!-- /SOCIAL LINKS -->
+                </div>
+                <!-- /COMPANY INFO -->
+                <div>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.6342665428015!2d106.679838114317!3d10.76264436239211!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f1c06f4e1dd%3A0x43900f1d4539a3d!2zVHLGsOG7nW5nIMSQ4bqhaSBo4buNYyBLaG9hIGjhu41jIFThu7Egbmhpw6pu!5e0!3m2!1svi!2s!4v1490579165072" frameborder="0" style="width:800px;height:350px;border:0;padding:50px;" allowfullscreen></iframe>
+                </div>
+
+            </div>
+        </div>
+        <!-- /FOOTER TOP -->
+        <!-- FOOTER BOTTOM -->
+        <div id="footer-bottom-wrap">
+            <div id="footer-bottom">
+                <p><span>&copy;</span><a href="index.html">Emerald Dragon</a> Template - All Rights Reserved 2015</p>
+            </div>
+        </div>
+        <!-- /FOOTER BOTTOM -->
+    </footer>
+    <!-- /FOOTER -->
+    <!-- SVG ARROW -->
+    <svg style="display: none;">
+        <symbol id="svg-arrow" viewBox="0 0 3.923 6.64014" preserveAspectRatio="xMinYMin meet">
+            <path d="M3.711,2.92L0.994,0.202c-0.215-0.213-0.562-0.213-0.776,0c-0.215,0.215-0.215,0.562,0,0.777l2.329,2.329
+			L0.217,5.638c-0.215,0.215-0.214,0.562,0,0.776c0.214,0.214,0.562,0.215,0.776,0l2.717-2.718C3.925,3.482,3.925,3.135,3.711,2.92z" />
+        </symbol>
+    </svg>
+    <!-- /SVG ARROW -->
+    <!-- SVG STAR -->
+    <svg style="display: none;">
+        <symbol id="svg-star" viewBox="0 0 10 10" preserveAspectRatio="xMinYMin meet">
+            <polygon points="4.994,0.249 6.538,3.376 9.99,3.878 7.492,6.313 8.082,9.751 4.994,8.129 1.907,9.751
+	2.495,6.313 -0.002,3.878 3.45,3.376 " />
+        </symbol>
+    </svg>
+    <!-- /SVG STAR -->
+    <!-- SVG PLUS -->
+    <svg style="display: none;">
+        <symbol id="svg-plus" viewBox="0 0 13 13" preserveAspectRatio="xMinYMin meet">
+            <rect x="5" width="3" height="13" />
+            <rect y="5" width="13" height="3" />
+        </symbol>
+    </svg>
+    <!-- jQuery -->
+    <script src="~/Scripts/js/vendor/jquery-3.1.0.min.js"></script>
+    <!-- Magnific Popup -->
+    <script src="~/Scripts/js/vendor/jquery.magnific-popup.min.js"></script>
+    <!-- XM Pie Chart -->
+    <script src="~/Scripts/js/vendor/jquery.xmpiechart.min.js"></script>
+    <!-- Dashboard Purchases -->
+    <script src="~/Scripts/js/dashboard-purchases.js"></script>
+    <!-- imgLiquid -->
+    <script src="~/Scripts/js/vendor/imgLiquid-min.js"></script>
+    <!-- Tooltipster -->
+    <script src="~/Scripts/js/vendor/jquery.tooltipster.min.js"></script>
+    <!-- Tweet -->
+    <script src="~/Scripts/js/vendor/twitter/jquery.tweet.min.js"></script>
+    <!-- Side Menu -->
+    <script src="~/Scripts/js/side-menu.js"></script>
+    <!-- Tooltip -->
+    <script src="~/Scripts/js/tooltip.js"></script>
+    <!-- User Quickview Dropdown -->
+    <script src="~/Scripts/js/user-board.js"></script>
+    <!-- Liquid -->
+    <script src="~/Scripts/js/liquid.js"></script>
+    <!-- XM Tab -->
+    <script src="~/Scripts/js/vendor/jquery.xmtab.min.js"></script>
+    <!-- xmAlert -->
+    <script src="~/Scripts/js/vendor/jquery.xmalert.min.js"></script>
+    <!-- Post Tab -->
+    <script src="~/Scripts/js/post-tab.js"></script>
+    <!-- XM Accordion -->
+    <script src="~/Scripts/js/vendor/jquery.xmaccordion.min.js"></script>
+    <!-- Home v2 -->
+    <script src="~/Scripts/js/home-v2.js"></script>
+    <!-- Footer -->
+    <script src="~/Scripts/js/footer.js"></script>
+
+    <script src="~/Scripts/jquery-ui.js"></script>
+
+    <script src="~/Scripts/MyScript.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            //start script favouries
+            $(".favourites").click(function () {
+                var item = $(this);
+                var input =item.closest(".preview-action").find("input");
+                var productID = input[0].value;
+                var userID = input[1].value;
+                $.ajax({
+                    type:"POST",
+                    url:"@Url.Action("Watching", "Account")",
+                    data: { "productID":  productID,
+                        "userID":userID},
+                success: function () {
+                    var color = item.find(".secondary").css("background-color");
+                    if (color == "rgb(55, 201, 255)") {
+                        item.find(".secondary").css("background-color", "rgb(231,231,231)");
+                    }
+                    else
+                    {
+                        item.find(".secondary").css("background-color", "rgb(55, 201, 255)");
+                    }
+
+                }
+            });
+        });
+            
+            // start script logout
+            $('#logoutLink').on('click', function () {
+                $('#frmLogout').submit();
+            });
+            // end script logout
+
+            // start script autocomplete
+            $("#search").autocomplete({
+                source: function (request, response) {
+                    var customer = new Array();
+                    $.ajax({
+                        async: false,
+                        cache: false,
+                        type: "POST",
+                        url: "@Url.Action("Autocomplete", "Home")",
+                        data: { "name": request.term },
+                        success: function (data) {
+                            response(data);
+                        }
+                    });
+                },
+            });
+            // end script autocomplete
+
+
+
+        })
+    </script>
+    
+    @RenderSection("scripts", required: false)
+</body>
+</html>

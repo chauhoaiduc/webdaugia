@@ -1,0 +1,338 @@
+﻿
+@{
+    ViewBag.Title = "Chi tiết sản phẩm";
+}
+
+@using WebDauGia.Helper
+@model WebDauGia.Models.ProductDetailViewModel
+
+@section scripts{
+
+<script>
+    $(document).ready(function () {
+        //start script favouries
+        $("#favourites").click(function () {
+            var item = $(this);
+            var productID = item.closest(".sidebar-item").find("#productID").val();
+            var userID = item.closest(".sidebar-item").find("#userID").val();
+            $.ajax({
+                type:"POST",
+                url:"@Url.Action("Watching", "Account")",
+                data: { "productID":  productID,
+                    "userID":userID},
+                success: function () {
+                    var color = item.css("background-color");
+                    if (color == "rgb(55, 201, 255)") {
+                        item.css("background-color", "grey");
+                    }
+                    else
+                    {
+                        item.css("background-color", "rgb(55, 201, 255)");
+                    }
+
+                }
+            });
+        });
+        // end script favouries
+        $("#auction").val($("#the-bid").val());
+        $("#the-bid").change(function () {
+            var number=$(this).val();
+            var price = @Model.PriceAuction;
+            var step =@Model.StepPrice;
+
+            if (!$.isNumeric(number)) {
+                $(this).val(price);
+            }
+            else if(number < price){
+                $(this).val(price);
+            }
+            else{
+                var conlai =number-price;
+                var buocgia = Math.ceil(conlai/step)*step;
+                var ketqua = price + buocgia;
+
+                $(this).val(ketqua);
+            }
+            $("#auction").val($("#the-bid").val());
+        });
+    });
+
+    $("#msg-timeout").hide();
+
+    var end = new Date($("#dateEnd").text()).getTime();
+    var x = setInterval(function () {
+        var now = new Date().getTime();
+        var distance = new Date();
+        distance = end - now;
+        // Time calculations for days, hours, minutes and seconds
+        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        for (seconds = 60 ; seconds <= 0 ; seconds--) {
+            if (seconds < 0) {
+                seconds = 60;
+                minutes--;
+                if (minutes < 0) {
+                    minutes = 60;
+                    hours--;
+                    if (hours < 0) {
+                        hours = 23;
+                        day--;
+                    }
+                }
+            }
+        }
+
+        if (distance < 1000 && distance > 0) {
+            $("#tatstatus").submit();
+        }
+
+        if (distance < 0) {
+            $('.bid-countdown').hide();
+            $("#msg-timeout").show();
+        }
+    }, 1000);
+</script>
+<!-- XM Countdown -->
+<script src="~/Scripts/js/vendor/jquery.xmcountdown.min.js"></script>
+<!-- Auction Page -->
+<script src="~/Scripts/js/auction-page.js"></script>
+    }
+
+<!-- SECTION HEADLINE -->
+<div class="section-headline-wrap">
+    <div class="section-headline">
+        <h2>@Model.Name</h2>
+    </div>
+</div>
+<!-- /SECTION HEADLINE -->
+
+<!-- SECTION -->
+<div class="section-wrap">
+    <div class="section">
+        @if (ViewBag.MsgError != null)
+        {
+            <center>
+                <div class="alert alert-danger" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <strong>Warning!</strong> @ViewBag.MsgError
+                </div>
+            </center>
+        }
+        @if (ViewBag.MsgSuccess != null)
+        {
+            <center>
+                <div class="alert alert-success" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <strong>Warning!</strong> @ViewBag.MsgSuccess
+                </div>
+            </center>
+        }
+        <!-- SIDEBAR -->
+        <div class="sidebar right">
+            <!-- SIDEBAR ITEM -->
+            <div class="sidebar-item">
+                <h4>Thời gian còn lại</h4>
+                <hr class="line-separator">
+                <h4 id="msg-timeout" style="color:red">Đã hết thời gian đấu giá</h4>    
+                <div class="bid-countdown">
+                    <span class="colon">:</span>
+                    <span class="colon">:</span>
+                    <span class="colon">:</span>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="sidebar-item void buttons">
+                <a class="button big dark purchase bid">
+                    <span class="currency truncate-price">@Model.PriceAuction</span>
+                    <small style="font-size:13px;">Current Bid</small>
+                </a>      
+                <!----- start bid form ----->
+                    @if (CurrentContext.IsLogged() && CurrentContext.GetUser().Status == 1)
+                    {
+                        if (Model.WinnerID == CurrentContext.GetUser().ID)
+                        {
+                            <p class="button mid dark spaced"><span>Bạn là người </span><span class="primary">đấu giá cao nhất</span></p>
+                        }
+                        else if (CurrentContext.Feedback() >= 80)
+                        {
+                            <input name="the-bid" id="the-bid" type="number" min="@Model.PriceAuction" step="@Model.StepPrice" value="@Model.PriceAuction" />
+                            <a id="comfirm" href="#popup-comfirm" class="button mid tertiary bid open-recommendation-form" style="width:280px;">Đấu giá</a>
+                        }
+                        else
+                        {
+                            <p class="button mid dark spaced"><span class="tertiary">Không đủ điều kiện </span><span class="primary">đấu giá</span></p>
+                        }
+                    }
+                    else
+                    {
+                        <a href="@Url.Action("Login", "Account")" class="button mid dark spaced"><span class="primary">Đăng nhập</span> để được đấu giá</a>
+                    }
+                <!-- Popup confirm -->
+                <div id="popup-comfirm" class="form-popup new-message mfp-hide">
+                    <!-- FORM POPUP CONTENT -->
+                    <div class="form-popup-content">
+                        <center><h4 class="popup-title">Đây có phải là giá bạn muốn đấu ?</h4></center>
+                        <!-- LINE SEPARATOR -->
+                        <hr class="line-separator">
+                        <form id="bidform" name="bid" method="post" action="@Url.Action("Auction", "Account", new { productID = @Model.ID })">
+                            <input type="number" id="auction" name="auction" readonly>
+                            @if (Model.Status == 1)
+                            {
+                                <button style="width:524px;" type="submit" class="button mid tertiary bid">Yes</button>
+                            }
+                        </form>
+                    </div>
+                </div>
+                <!-- /Popup confirm -->
+                <div class="clearfix"></div>
+                <!----- end bid form ----->
+                <!----- buy it now ----->
+                @if (Model.BuyNowPice > 0)
+                {
+                    <a class="button big dark purchase bid">
+                        <span class="currency truncate-price">@Model.BuyNowPice</span>
+                        <small style="font-size:13px;">Buy it now</small>
+                    </a>
+                    <a href="#popup-buyitnow" class="button mid primary bid open-recommendation-form" style="width:280px;">Mua ngay</a>
+                    <!-- Popup confirm -->
+                    <div id="popup-buyitnow" class="form-popup new-message mfp-hide">
+                        <!-- FORM POPUP CONTENT -->
+                        <div class="form-popup-content">
+                            <center><h4 class="popup-title">Bạn có muốn mua ngay sản phẩm với giá  ?</h4></center>
+                            <!-- LINE SEPARATOR -->
+                            <hr class="line-separator">
+                            <form id="bidform" name="bid" method="post" action="@Url.Action("BuyItNow", "Account", new { productID = @Model.ID })">
+                                <input type="number" value="@Model.BuyNowPice" readonly>
+                                @if (Model.Status == 1)
+                                {
+                                    <button style="width:524px;" type="submit" class="button mid tertiary bid">Yes</button>
+                                }
+                            </form>
+                        </div>
+                        <!-- /FORM POPUP CONTENT -->
+                        <div class="close-btn mfp-close"><svg class="svg-plus"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#svg-plus"></use></svg></div>
+                    </div>
+                <!-- /Popup confirm -->
+                }
+                <!----- /buy it now ----->
+                  
+                <div class="clearfix"></div>
+                <input type="hidden" id="productID" value="@Model.ID" />
+                @if (CurrentContext.IsLogged() && Model.Status!=0)
+                {
+                    <input type="hidden" id="userID" value="@CurrentContext.GetUser().ID" />
+                    @Html.Action("CheckFavourites","Product",new { productID = Model.ID })
+                }
+                else
+                {
+                    <a class="button big secondary wfav" style="background-color:grey">
+                        <span class="icon-heart"></span>
+                        <span class="fav-count">652</span>
+                        Yêu thích
+                    </a>
+                }
+            </div>
+            <!-- /SIDEBAR ITEM -->
+            <!-- SIDEBAR ITEM -->
+            <div class="sidebar-item author-bio">
+                <h4>Người bán</h4>
+                <hr class="line-separator">
+                <!-- USER AVATAR -->
+                <a href="@Url.Action("ProfileUser", "Account", new { id = Model.VendorID })" class="user-avatar-wrap medium">
+                    <figure class="user-avatar medium">
+                        <img style="width:70px;height:70px;" src="@Url.Content(Model.VendorImage)" alt="">
+                    </figure>
+                </a>
+                <!-- /USER AVATAR -->
+                <p class="text-header">@Model.VendorName (@Model.FeedbackVendor%)</p>
+                <!-- SHARE LINKS -->
+                <ul class="share-links">
+                    <li><a class="fb"></a></li>
+                    <li><a class="twt"></a></li>
+                    <li><a class="db"></a></li>
+                </ul>
+                <!-- /SHARE LINKS -->
+                <a href="@Url.Action("ProfileUser", "Account", new { id = Model.VendorID })" class="button mid dark spaced">Đi đến <span class="primary">trang cá nhân</span></a>
+            </div>
+            <!-- /SIDEBAR ITEM -->
+            <!-- SIDEBAR ITEM -->
+            <div class="sidebar-item product-info">
+                <h4>Thông tin sản phẩm</h4>
+                <hr class="line-separator">
+                <!-- INFORMATION LAYOUT -->
+                <div class="information-layout">
+                    <!-- INFORMATION LAYOUT ITEM -->
+                    <div class="information-layout-item">
+                        <p class="text-header">Người giữ giá:</p>
+                        <p><a style="color:blue" href="@Url.Action("ProfileUser","Account",new { id=Model.WinnerID})">@CurrentContext.Hidden(Model.WinnerName) (@Model.FeedbackWinner%)</a></p>
+                    </div>
+                    <!-- /INFORMATION LAYOUT ITEM -->
+                    <!-- INFORMATION LAYOUT ITEM -->
+                    <div class="information-layout-item">
+                        <p class="text-header">Ngày đăng:</p>
+                        <p>@Model.DateStart</p>
+                    </div>
+                    <!-- /INFORMATION LAYOUT ITEM -->
+                    <!-- INFORMATION LAYOUT ITEM -->
+                    <div class="information-layout-item">
+                        <form method="post" id="tatstatus" action="@Url.Action("Timeout", "Account", new { id = @Model.ID })"></form>
+                        <p class="text-header">Ngày kết thúc:</p>
+                        <p id="dateEnd">@Model.DateEnd</p>
+                    </div>
+                    <!-- /INFORMATION LAYOUT ITEM -->
+                </div>
+                <!-- INFORMATION LAYOUT -->
+            </div>
+            <!-- /SIDEBAR ITEM -->
+
+        </div>
+        <!-- /SIDEBAR -->
+        <!-- CONTENT -->
+        <div class="content left">
+            <!-- POST -->
+            <article class="post">
+                <!-- POST IMAGE -->
+                <div class="post-image">
+                    @if (Model.Status == 2)
+                    {
+                        <div class="ribbon"><span>SOLD</span></div>
+                    }
+                    @Html.Action("PostImage", "Product", new { productID = Model.ID })
+                </div>
+                <!-- /POST IMAGE -->
+                <!-- POST CONTENT -->
+                <div class="post-content">
+                    <!-- POST PARAGRAPH -->
+                    <div class="post-paragraph">
+                        <h3 class="post-title">Mô tả chi tiết sản phẩm</h3>
+                        <p>@Html.Raw(Model.Description)</p>
+                    </div>
+                    <!-- /POST PARAGRAPH -->
+                </div>
+                <!-- /POST CONTENT -->
+
+                <hr class="line-separator">
+
+                <!-- SHARE -->
+                <div class="share-links-wrap">
+                    <p class="text-header small">Share this:</p>
+                    <!-- SHARE LINKS -->
+                    <ul class="share-links hoverable">
+                        <li><a class="fb"></a></li>
+                        <li><a class="twt"></a></li>
+                        <li><a class="db"></a></li>
+                        <li><a class="rss"></a></li>
+                        <li><a class="gplus"></a></li>
+                    </ul>
+                    <!-- /SHARE LINKS -->
+                </div>
+                <!-- /SHARE -->
+            </article>
+            <!-- /POST -->
+        </div>
+        <!-- CONTENT -->
+    </div>
+</div>
+<!-- /SECTION -->

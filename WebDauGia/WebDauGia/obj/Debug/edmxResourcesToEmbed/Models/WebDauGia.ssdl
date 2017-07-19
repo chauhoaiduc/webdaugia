@@ -1,0 +1,221 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="WebDauGiaModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityType Name="Categories">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" />
+    <Property Name="Status" Type="bit" />
+  </EntityType>
+  <EntityType Name="CommentVendor">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="ProductID" Type="int" />
+    <Property Name="VendorID" Type="int" />
+    <Property Name="WinnerID" Type="int" />
+    <Property Name="Comment" Type="nvarchar(max)" />
+    <Property Name="Point" Type="int" />
+  </EntityType>
+  <EntityType Name="CommentWinner">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="ProductID" Type="int" />
+    <Property Name="VendorID" Type="int" />
+    <Property Name="WinnerID" Type="int" />
+    <Property Name="Comment" Type="nvarchar(max)" />
+    <Property Name="Point" Type="int" />
+  </EntityType>
+  <EntityType Name="DeniedProduct">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="UserID" Type="int" />
+    <Property Name="ProductID" Type="int" />
+  </EntityType>
+  <EntityType Name="DeniedVendor">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="UserID" Type="int" />
+    <Property Name="VendorID" Type="int" />
+  </EntityType>
+  <EntityType Name="HistoryAuction">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="UserID" Type="int" />
+    <Property Name="ProductID" Type="int" />
+    <Property Name="Price" Type="int" />
+    <Property Name="DateAction" Type="datetime" />
+    <Property Name="Denied" Type="int" />
+  </EntityType>
+  <EntityType Name="Photos">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" />
+    <Property Name="ProductID" Type="int" />
+    <Property Name="Status" Type="bit" />
+  </EntityType>
+  <EntityType Name="Products">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nvarchar(max)" />
+    <Property Name="VendorID" Type="int" />
+    <Property Name="CategoryID" Type="int" />
+    <Property Name="Price" Type="int" />
+    <Property Name="Descrition" Type="nvarchar(max)" />
+    <Property Name="DateStart" Type="datetime" />
+    <Property Name="DateEnd" Type="datetime" />
+    <Property Name="Status" Type="int" />
+    <Property Name="PriceAuction" Type="int" />
+    <Property Name="TopPrice" Type="int" />
+    <Property Name="Winner" Type="int" />
+    <Property Name="StepPrice" Type="int" />
+    <Property Name="BuyNowPice" Type="int" />
+    <Property Name="AutoExtend" Type="bit" />
+  </EntityType>
+  <EntityType Name="sysdiagrams">
+    <Key>
+      <PropertyRef Name="diagram_id" />
+    </Key>
+    <Property Name="name" Type="nvarchar" MaxLength="128" Nullable="false" />
+    <Property Name="principal_id" Type="int" Nullable="false" />
+    <Property Name="diagram_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="version" Type="int" />
+    <Property Name="definition" Type="varbinary(max)" />
+  </EntityType>
+  <EntityType Name="Users">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Name" Type="nchar" MaxLength="200" />
+    <Property Name="Email" Type="nchar" MaxLength="200" />
+    <Property Name="Password" Type="nchar" MaxLength="200" />
+    <Property Name="Photo" Type="nvarchar(max)" />
+    <Property Name="Credits" Type="int" />
+    <Property Name="Address" Type="nvarchar(max)" />
+    <Property Name="Status" Type="int" />
+    <Property Name="UserName" Type="nchar" MaxLength="200" />
+    <Property Name="Role" Type="int" />
+    <Property Name="Positive" Type="int" />
+    <Property Name="Negative" Type="int" />
+    <Property Name="Code" Type="nvarchar(max)" />
+    <Property Name="DateStartSale" Type="datetime" />
+    <Property Name="DateEndSale" Type="datetime" />
+    <Property Name="SaleStatus" Type="int" />
+  </EntityType>
+  <EntityType Name="WatchList">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="UserID" Type="int" />
+    <Property Name="ProductID" Type="int" />
+  </EntityType>
+  <Association Name="FK_HistoryAuction_Products">
+    <End Role="Products" Type="Self.Products" Multiplicity="0..1" />
+    <End Role="HistoryAuction" Type="Self.HistoryAuction" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Products">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="HistoryAuction">
+        <PropertyRef Name="ProductID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_HistoryAuction_Users">
+    <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
+    <End Role="HistoryAuction" Type="Self.HistoryAuction" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Users">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="HistoryAuction">
+        <PropertyRef Name="UserID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Photos_Products">
+    <End Role="Products" Type="Self.Products" Multiplicity="0..1" />
+    <End Role="Photos" Type="Self.Photos" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Products">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="Photos">
+        <PropertyRef Name="ProductID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Products_Categories">
+    <End Role="Categories" Type="Self.Categories" Multiplicity="0..1" />
+    <End Role="Products" Type="Self.Products" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Categories">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="Products">
+        <PropertyRef Name="CategoryID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_Products_Users">
+    <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
+    <End Role="Products" Type="Self.Products" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Users">
+        <PropertyRef Name="ID" />
+      </Principal>
+      <Dependent Role="Products">
+        <PropertyRef Name="VendorID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityContainer Name="WebDauGiaModelStoreContainer">
+    <EntitySet Name="Categories" EntityType="Self.Categories" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="CommentVendor" EntityType="Self.CommentVendor" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="CommentWinner" EntityType="Self.CommentWinner" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="DeniedProduct" EntityType="Self.DeniedProduct" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="DeniedVendor" EntityType="Self.DeniedVendor" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="HistoryAuction" EntityType="Self.HistoryAuction" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Photos" EntityType="Self.Photos" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Products" EntityType="Self.Products" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="WatchList" EntityType="Self.WatchList" Schema="dbo" store:Type="Tables" />
+    <AssociationSet Name="FK_HistoryAuction_Products" Association="Self.FK_HistoryAuction_Products">
+      <End Role="Products" EntitySet="Products" />
+      <End Role="HistoryAuction" EntitySet="HistoryAuction" />
+    </AssociationSet>
+    <AssociationSet Name="FK_HistoryAuction_Users" Association="Self.FK_HistoryAuction_Users">
+      <End Role="Users" EntitySet="Users" />
+      <End Role="HistoryAuction" EntitySet="HistoryAuction" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Photos_Products" Association="Self.FK_Photos_Products">
+      <End Role="Products" EntitySet="Products" />
+      <End Role="Photos" EntitySet="Photos" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Products_Categories" Association="Self.FK_Products_Categories">
+      <End Role="Categories" EntitySet="Categories" />
+      <End Role="Products" EntitySet="Products" />
+    </AssociationSet>
+    <AssociationSet Name="FK_Products_Users" Association="Self.FK_Products_Users">
+      <End Role="Users" EntitySet="Users" />
+      <End Role="Products" EntitySet="Products" />
+    </AssociationSet>
+  </EntityContainer>
+</Schema>

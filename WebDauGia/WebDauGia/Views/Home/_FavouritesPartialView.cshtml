@@ -1,0 +1,23 @@
+﻿@model bool
+
+<a class="favourites">
+    @if (Model==true)
+    {
+        <div class="circle tiny secondary">
+            <span class="icon-heart">
+            </span>
+        </div>
+    }
+    else
+    {
+        <div class="circle tiny secondary" style="background-color:rgb(231,231,231)">
+            <span class="icon-heart">
+            </span>
+        </div>
+    }
+
+</a>
+<p>Favourites +</p>
+
+
+

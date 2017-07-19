@@ -1,0 +1,147 @@
+﻿
+@{
+    ViewBag.Title = "Setting Account";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+@section scripts{
+<script src="~/Helper/jquery-validate/jquery.validate.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#file").change(function () {
+                var output = $('#image-user')[0];
+                output.src = URL.createObjectURL(event.target.files[0]);
+            });
+
+            $("#profile-info-form").validate({
+                rules: {
+                    Name: {
+                        required: true
+                    },
+                    Email: {
+                        required: true
+                    },
+                    Address: {
+                        required: true
+                    },
+                    NewPassword: {
+                        minlength: 6
+                    },
+                    RePassword: {
+                        equalTo: "#NewPassword"
+                    }
+                },
+                messages: {
+                    Name: {
+                        required: "Vui lòng nhập Username !"
+                    },
+                    Address: {
+                        required: "Vui lòng nhập địa chỉ !"
+                    },
+                    Email: {
+                        required: "Vui lòng nhập email !"
+                    },
+                    NewPassword: {
+                        minlength: "Mật khẩu phải có ít nhất 6 kí tự"
+                    },
+                    RePassword: {
+                        equalTo: "Mật khẩu nhập lại không đúng"
+                    }
+                }
+            });
+        });
+    </script>
+    }
+
+@model WebDauGia.Models.SettingViewModel
+
+@if (ViewBag.MsgError != null)
+{
+    <center>
+        <div class="alert alert-danger" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <strong>Warning!</strong> @ViewBag.MsgError
+        </div>
+    </center>
+}
+@if (ViewBag.MsgSuccess != null)
+{
+    <center>
+        <div class="alert alert-success" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <strong>Success!</strong> @ViewBag.MsgSuccess
+        </div>
+    </center>
+}
+
+<!-- HEADLINE -->
+<div class="headline buttons primary">
+    <h4>Account Settings</h4>
+    <button form="profile-info-form" class="button mid-short primary">Save Changes</button>
+</div>
+<!-- /HEADLINE -->
+<!-- FORM BOX ITEMS -->
+<div class="form-box-items">
+    <!-- FORM BOX ITEM -->
+    <div class="form-box-item">
+        <h4>Thông tin cá nhân</h4>
+        <hr class="line-separator">
+        <form id="profile-info-form" action="" method="post" enctype="multipart/form-data">
+            
+            @Html.AntiForgeryToken()
+            <!-- PROFILE IMAGE UPLOAD -->
+            <div class="profile-image">
+                <div class="profile-image-data">
+                    <figure class="user-avatar medium">
+                        <img id="image-user" style="width:70px;height:70px;" src="@Url.Content(Model.Image)" alt="profile-default-image">
+                    </figure>
+                    <p class="text-header">Ảnh đại diện</p>
+                    <p class="upload-details">Minimum size 70x70px</p>
+                </div>
+                <label for="file" class="button mid-short dark-light">
+                    Upload Image...
+                </label>                   
+                <input id="file" name="file" type="file" style="display:none" />
+            </div>
+            <!-- PROFILE IMAGE UPLOAD -->
+            <!-- INPUT CONTAINER -->
+            <div class="input-container">
+                <label for="Name" class="rl-label required">Tên</label>
+                <input type="text" id="Name" name="Name" value="@Model.Name" placeholder="Nhập tên đầy đủ ở đây...">
+            </div>
+            <div class="input-container">
+                <label for="OldPassword" class="rl-label required">Old Password</label>
+                <input type="text" id="OldPassword" name="OldPassword" placeholder="Nhập password cũ ở đây...">
+            </div>
+            <!-- /INPUT CONTAINER -->
+            <!-- INPUT CONTAINER -->
+            <div class="input-container half">
+                <label for="NewPassword" class="rl-label">New Password</label>
+                <input type="password" id="NewPassword" name="NewPassword" placeholder="Nhập password ở đây...">
+            </div>
+            <!-- /INPUT CONTAINER -->
+            <!-- INPUT CONTAINER -->
+            <div class="input-container half">
+                <label for="RePassword" class="rl-label">Repeat Password</label>
+                <input type="password" id="RePassword" name="RePassword" placeholder="Nhập lại password ở đây...">
+            </div>
+            <!-- /INPUT CONTAINER -->
+            <!-- INPUT CONTAINER -->
+            <div class="input-container">
+                <label for="Email" class="rl-label">Email</label>
+                <input type="email" id="Email" name="Email" value="@Model.Email" placeholder="Nhập email ở đây ...">
+            </div>
+            <!-- /INPUT CONTAINER -->
+            <!-- INPUT CONTAINER -->
+            <div class="input-container">
+                <label for="Address" class="rl-label">Address</label>
+                <input type="text" id="Address" name="Address" value="@Model.Address" placeholder="Nhập địa chỉ ở đây ...">
+            </div>
+            <!-- /INPUT CONTAINER -->
+            
+        </form>
+    </div>
+    <!-- /FORM BOX ITEM -->
+</div>
+<!-- /FORM BOX -->
+

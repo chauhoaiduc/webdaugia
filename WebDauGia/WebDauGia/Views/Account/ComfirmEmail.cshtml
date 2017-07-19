@@ -1,0 +1,34 @@
+﻿
+@{
+    ViewBag.Title = "Xác nhận email";
+}
+
+@using WebDauGia.Helper
+
+<div class="form-popup">
+    
+    <!-- FORM POPUP CONTENT -->
+    <div class="form-popup-content">
+        @if (ViewBag.ErrorMsg != null)
+        {
+            <div class="alert alert-warning" role="alert">
+                <strong>Warning!</strong> @ViewBag.ErrorMsg
+            </div>
+            <hr class="line-separator">
+        }
+        <h4 class="popup-title">Xác nhận email</h4>
+        <!-- LINE SEPARATOR -->
+        <hr class="line-separator short">
+        <!-- /LINE SEPARATOR -->
+        <p class="spaced">Chúng tôi đã gửi 1 mã xác nhận vào email của bạn vui lòng kiểm tra email để nhập mã xác nhận.</p>
+        <!-- action không ghi gì mặc định post về hàm trùng với tên View là controller trùng với tên thư mục chứa View  -->
+        <form id="restore-pwd-form" method="post" action="">
+            <input type="hidden" name="UserID" value="@CurrentContext.GetUser().ID"/>
+            <label class="rl-label" for="code">Mã xác nhận</label>
+            <input name="Code" id="code" type="text" placeholder="Nhập mã xác nhận ở đây ...">
+            <button class="button mid dark no-space">Xác nhận <span class="primary">ngay</span></button>
+        </form>
+    </div>
+    <!-- /FORM POPUP CONTENT -->
+</div>
+

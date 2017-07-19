@@ -1,0 +1,32 @@
+﻿@using WebDauGia.Models
+@model List<CommentViewModel>
+
+@foreach (var item in Model)
+{
+    <div class="comment-wrap">
+        <!-- USER AVATAR -->
+        <a href="user-profile.html">
+            <figure class="user-avatar medium">
+                <img src="@Url.Content(item.Image)" style="width:70px;height:70px;" alt="">
+            </figure>
+        </a>
+        <!-- /USER AVATAR -->
+        <div class="comment">
+            <p class="text-header">@item.Name</p>
+            <!-- PIN -->
+            @if (item.Point > 0)
+            {
+                <span class="pin primary">Tích cực</span>
+            }
+            else
+            {
+                <span class="pin red">Tiêu cực</span>
+            }
+            <!-- /PIN -->
+            <p>@item.Comment</p>
+        </div>
+    </div>
+    <!-- LINE SEPARATOR -->
+    <hr class="line-separator">
+}
+

@@ -1,0 +1,15 @@
+﻿@using WebDauGia.Models
+@model List<Category>
+
+<!-- DROPDOWN -->
+<ul class="dropdown hover-effect">
+@foreach (var item in Model)
+{
+    <li class="dropdown-item">
+        <a href="@Url.Action("ByCategory", "Product", new { catid=item.ID})">@item.Name</a>
+    </li>
+}
+</ul>
+<!-- /DROPDOWN -->
+
+

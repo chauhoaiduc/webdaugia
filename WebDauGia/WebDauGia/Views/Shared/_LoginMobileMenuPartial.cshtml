@@ -1,0 +1,76 @@
+﻿@using WebDauGia.Helper
+    <!-- /SVG PLUS -->
+@if (CurrentContext.IsLogged())
+{
+    <!-- SIDE MENU HEADER -->
+    <div class="side-menu-header">
+        <!-- USER QUICKVIEW -->
+        <div class="user-quickview">
+            <!-- USER AVATAR -->
+            <a href="@Url.Action("Profile", "Account", new { id = @CurrentContext.GetUser().ID })">
+                <div class="outer-ring">
+                    <div class="inner-ring"></div>
+                    <figure class="user-avatar">
+                        <img src="@Url.Content(@CurrentContext.GetUser().Photo)" alt="avatar">
+                    </figure>
+                </div>
+            </a>
+            <!-- /USER AVATAR -->
+            <!-- USER INFORMATION -->
+            <p class="user-name">@CurrentContext.GetUser().Name</p>
+            <p class="user-money">$@CurrentContext.GetUser().Credits</p>
+            <!-- /USER INFORMATION -->
+        </div>
+        <!-- /USER QUICKVIEW -->
+    </div>
+    <!-- /SIDE MENU HEADER -->
+    <!-- SIDE MENU TITLE -->
+    <p class="side-menu-title">Your Account</p>
+    <!-- /SIDE MENU TITLE -->
+    <!-- DROPDOWN -->
+    <ul class="dropdown dark hover-effect">
+        <!-- DROPDOWN ITEM -->
+        <li class="dropdown-item">
+            <a href="@Url.Action("WatchList", "Account")">Favourites</a>
+        </li>
+        <!-- /DROPDOWN ITEM -->
+    </ul>
+    <!-- /DROPDOWN -->
+    <!-- SIDE MENU TITLE -->
+    <p class="side-menu-title">Dashboard</p>
+    <!-- /SIDE MENU TITLE -->
+    <!-- DROPDOWN -->
+    <ul class="dropdown dark hover-effect">
+        <li class="dropdown-item">
+            <a href="@Url.Action("Profile", "Account", new { id = @CurrentContext.GetUser().ID })">Trang cá nhân</a>
+        </li>
+        <li class="dropdown-item">
+            <a href="@Url.Action("Setting", "Account", new { id = @CurrentContext.GetUser().ID })">Cài đặt tài khoản</a>
+        </li>
+        <li class="dropdown-item">
+            <a href="@Url.Action("ManageItems", "Account")">Quản lý sản phẩm</a>
+        </li>
+        <li class="dropdown-item">
+            <a href="@Url.Action("HistoryAuction", "Account")">Lịch sử đấu giá</a>
+        </li>
+        <li class="dropdown-item">
+            <a href="dashboard-buycredits.html">Buy Credits</a>
+        </li>
+        <li class="dropdown-item">
+            <a href="@Url.Action("UploadItem", "Account")">Đăng sản phẩm</a>
+        </li>
+    </ul>
+    <!-- /DROPDOWN -->
+    <a href="#" id="logoutLink" class="button secondary">Logout</a>
+}
+else
+{
+        <p class="side-menu-title">Actions</p>
+        <!-- LOGIN OR REGISTER -->
+        <div class="account-actions">
+            <a href="@Url.Action("Login","Account")" class="button secondary">Đăng nhập</a>
+            <a href="@Url.Action("Register","Account")" class="button primary">Đăng ký</a>
+        </div>
+        <!-- /LOGIN OR REGISTER -->
+
+}

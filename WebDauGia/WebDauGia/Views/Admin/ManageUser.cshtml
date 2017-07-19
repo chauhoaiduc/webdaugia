@@ -1,0 +1,122 @@
+﻿
+@{
+    ViewBag.Title = "Quản lý người dùng";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+@using WebDauGia.Models
+@model List<ManageUserViewModel>
+
+<!-- HEADLINE -->
+<div class="headline purchases primary">
+    <h4>@ViewBag.Title</h4>
+</div>
+<!-- /HEADLINE -->
+@if (ViewBag.Message != null)
+{
+    <center>
+        <div class="alert alert-success" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <strong>Success!</strong> @ViewBag.Message
+        </div>
+    </center>
+}
+<!-- PURCHASES LIST -->
+<div class="purchases-list">
+    <!-- PURCHASES LIST HEADER -->
+    <div class="purchases-list-header">
+        <div class="purchases-list-header-info">
+            <p class="text-header small">Username</p>
+        </div>
+        <div class="purchases-list-header-details">
+            <p class="text-header small">Thông tin chi tiết</p>
+        </div>
+        <div class="purchases-list-header-info" style="width:180px;">
+            <p class="text-header small">Email</p>
+        </div>
+        <div class="purchases-list-header-price" style="width:120px;">
+            <p class="text-header small">Credits</p>
+        </div>
+        <div class="purchases-list-header-price">
+            <p class="text-header small">Feedback</p>
+        </div>
+        <div class="purchases-list-header-recommend" style="width:120px;">
+            <p class="text-header small">Xóa người dùng</p>
+        </div>
+        <div class="purchases-list-header-recommend" style="width:120px;">
+            <p class="text-header small">Reset password</p>
+        </div>
+    </div>
+    <!-- /PURCHASES LIST HEADER -->
+    @foreach (var item in Model)
+    {
+        <!-- PURCHASE ITEM -->
+        <div class="purchase-item">
+            <div class="purchase-item-info">
+                <strong class="category primary text-header" style="font-size:16px;">&nbsp;@item.UserName</strong>
+            </div>
+            <div class="purchase-item-details">
+                <!-- ITEM PREVIEW -->
+                <div class="item-preview">
+                    <figure class="product-preview-image small liquid">
+                        <img src="@Url.Content(item.Image)" alt="product-image">
+                    </figure>
+                    <a href="@Url.Action("ProfileUser", "Account", new { id=item.ID})" class="text-header truncate-details">@item.Name</a>
+                    <p class="description truncate-details">@item.Address</p>
+                </div>
+                <!-- /ITEM PREVIEW -->
+            </div>
+            <div class="purchase-item-info" style="width:180px;">
+                <p class="category primary text-header truncate-details" style="font-size:16px;">@item.Email</p>
+            </div>
+            <div class="purchase-item-price" style="width:120px;">
+                <p class="price" style="color:blue">@item.Credits<span>$</span></p>
+            </div>
+            <div class="purchase-item-price">
+                <p class="price"><span style="font-size:16px;color:green">@item.Positive</span>/<span style="font-size:16px;color:red">@item.Negative</span></p>
+            </div>
+            <div class="purchase-item-recommend" style="width:120px;">
+                <div class="recommendation-wrap">
+                    <form action="@Url.Action("RemoveUser","Admin",new { userID=item.ID})" method="post">
+                        <button type="submit" class="recommendation bad hoverable">
+                            <span class="icon-user-unfollow icon-center"></span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="purchase-item-recommend" style="width:120px;">
+                <div class="recommendation-wrap">
+                    <form action="@Url.Action("ResetPasswordUser","Admin",new { userID=item.ID})" method="post">
+                        <button type="submit" class="recommendation good hoverable">
+                            <span class="icon-key icon-center"></span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    <!-- /PURCHASE ITEM -->
+    }
+
+    <!-- PAGER -->
+    <div class="pager-wrap">
+        <div class="pager primary">
+            <div class="pager-item">
+                <a href="?index=@ViewBag.Previous" aria-label="Previous">
+                    <p>&laquo;</p>
+                </a>
+            </div>
+            @for (int i = 1; i <= ViewBag.Pages; i++)
+            {
+                <div class="pager-item"><a href="?index=@i"><p>@i</p></a></div>
+            }
+            <div class="pager-item">
+                <a href="?index=@ViewBag.Next" aria-label="Next">
+                    <p>&raquo;</p>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- /PAGER -->
+</div>
+<!-- /PURCHASES LIST -->
+

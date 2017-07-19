@@ -1,0 +1,168 @@
+﻿
+@{
+    ViewBag.Title = "Quản lý sản phẩm";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+@section scripts{
+    <script>
+
+        $(".drop").hide();
+        $(".product-settings").click(function () {
+            var drop = $(this).closest(".product-preview-actions").find(".drop");
+            if (drop.hasClass("show")) {
+                drop.show();
+                drop.removeClass("show");
+            }
+            else
+            {
+                drop.hide();
+                drop.addClass("show")
+            }
+
+        });
+
+        $(".upload-new").click(function () {
+            window.location.replace("@Url.Action("UploadItem","Account")");
+        });
+    </script>
+    }
+
+@using WebDauGia.Helper
+@using WebDauGia.Models
+@model List<ProductHomeViewModel>
+<!-- HEADLINE -->
+<div class="headline buttons primary">
+    <h4>@ViewBag.Title</h4>
+</div>
+<!-- /HEADLINE -->
+
+<!-- PRODUCT SHOWCASE -->
+<div class="product-showcase tabbed">
+    <!-- PRODUCT LIST -->
+    <div class="product-list grid column3-4-wrap">
+        <div class="product-item upload-new column">
+            <!-- PRODUCT PREVIEW ACTIONS -->
+            <div class="product-preview-actions">
+                <!-- PRODUCT PREVIEW IMAGE -->
+                <figure class="product-preview-image">
+                    <img src="~/images/dashboard/uploadnew-bg.jpg" alt="product-image">
+                </figure>
+                <!-- /PRODUCT PREVIEW IMAGE -->
+            </div>
+            <!-- /PRODUCT PREVIEW ACTIONS -->
+            <!-- PRODUCT INFO -->
+            <div class="product-info">
+                <p class="text-header">Đăng sản phẩm mới</p>
+                <p class="description">Đăng sản phẩm mới để kiếm thêm credits nào.</p>
+            </div>
+            <!-- /PRODUCT INFO -->
+        </div>
+        @foreach (var item in Model)
+        {
+                <!-- PRODUCT ITEM -->
+            <div class="product-item column">
+                @if (item.DateStart.Value.Date == DateTime.Now.Date)
+                {
+                    <div class="ribbon"><span>NEW</span></div>
+                }
+                <!-- PRODUCT PREVIEW ACTIONS -->
+                <div class="product-preview-actions">
+                    <!-- PRODUCT PREVIEW IMAGE -->
+                    <figure class="product-preview-image">
+                        <img src="@Url.Content(@item.LinkImage)" style="width:258px;height:150px;" alt="product-image">
+                    </figure>
+                    <!-- /PRODUCT PREVIEW IMAGE -->
+                    <!-- PRODUCT SETTINGS -->
+                    <div class="product-settings primary dropdown-handle">
+                        <span class="sl-icon icon-settings"></span>
+                    </div>
+                    <!-- /PRODUCT SETTINGS -->
+                    <!-- DROPDOWN -->
+                    <ul class="dropdown small hover-effect drop show" >
+                        <li class="dropdown-item">
+                            <!-- DP TRIANGLE -->
+                            <div class="dp-triangle"></div>
+                            <!-- DP TRIANGLE -->
+                            <a href="@Url.Action("Edit","Product",new { productID=item.ID})">Chỉnh sửa sản phẩm</a>
+                        </li>
+                    </ul>
+                    <!-- /DROPDOWN -->
+                    
+                </div>
+                <!-- /PRODUCT PREVIEW ACTIONS -->
+                <!-- PRODUCT INFO -->
+                <div class="product-info">
+                    <a href="@Url.Action("Detail","Product",new { productID = item.ID})">
+                        <p class="text-header truncate">@item.Name</p>
+                    </a>
+                    <hr class="line-separator">
+                    <a>
+                        <p class="category tertiary">Còn lại: @((item.DateEnd.Value.Date - DateTime.Now.Date).Days) Ngày</p>
+                    </a>
+                    <p class="price">@item.Price$</p>
+
+
+                </div>
+                <!-- /PRODUCT INFO -->
+
+                <hr class="line-separator">
+                <div class="product-info">
+                    @if (item.BuyItNow != 0)
+                    {
+                        <!-- BUY IT NOW -->
+                        <a>
+                            <p class="category primary">Giá mua ngay:</p>
+                        </a>
+                        <p class="price">@item.BuyItNow$</p>
+                        <!-- /BUY IT NOW -->
+                    }
+                    else
+                    {
+                        <!-- Category Name -->
+                        <a href="@Url.Action("ByCategory", "Product", new { catid=item.CateID})">
+                            <p class="category primary">@item.CateName</p>
+                        </a>
+                        <!-- /Category Name -->
+                    }
+                </div>
+                <hr class="line-separator">
+
+                <!-- USER RATING -->
+                <div class="user-rating">
+                    <a href="author-profile.html">
+                        <figure class="user-avatar small">
+                            <img src="@Url.Content(@item.ImageUser)" style="width:26px;height:26px;" alt="user-avatar">
+                        </figure>
+                    </a>
+                    <a href="author-profile.html">
+                        <p class="text-header tiny">@CurrentContext.Hidden(item.Winner)</p>
+                    </a>
+                </div>
+                <!-- /USER RATING -->
+            </div>
+                <!-- /PRODUCT ITEM -->
+        }
+    </div>
+    <!-- /PRODUCT LIST -->
+</div>
+<!-- /PRODUCT SHOWCASE -->
+<!-- PAGER -->
+<div class="pager-wrap">
+    <div class="pager primary">
+        <div class="pager-item">
+            <a href="?index=@ViewBag.Previous" aria-label="Previous">
+                <p>&laquo;</p>
+            </a>
+        </div>
+        @for (int i = 1; i <= ViewBag.Pages; i++)
+        {
+            <div class="pager-item"><a href="?index=@i"><p>@i</p></a></div>
+        }
+        <div class="pager-item">
+            <a href="?index=@ViewBag.Next" aria-label="Next">
+                <p>&raquo;</p>
+            </a>
+        </div>
+    </div>
+</div>
+<!-- /PAGER -->

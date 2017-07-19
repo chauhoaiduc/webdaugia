@@ -1,0 +1,115 @@
+﻿
+@{
+    ViewBag.Title = "Trang cá nhân";
+}
+
+@model WebDauGia.Models.ProfileViewModel
+
+@section scripts{
+<script src="~/Scripts/js/author-profile.js"></script>
+    }
+
+<!-- SECTION HEADLINE -->
+<div class="section-headline-wrap">
+    <div class="section-headline">
+        <h2>Trang cá nhân</h2>
+    </div>
+</div>
+<!-- /SECTION HEADLINE -->
+
+<!-- AUTHOR PROFILE META -->
+<div class="author-profile-meta-wrap">
+    <div class="author-profile-meta">
+        <!-- AUTHOR PROFILE INFO -->
+        <div class="author-profile-info">
+            <!-- AUTHOR PROFILE INFO ITEM -->
+            <div class="author-profile-info-item">
+                <p class="text-header">Điểm tích cực:</p>
+                <p style="color:#00d7b3">@Model.Positive</p>
+            </div>
+            <!-- /AUTHOR PROFILE INFO ITEM -->
+            <!-- AUTHOR PROFILE INFO ITEM -->
+            <div class="author-profile-info-item">
+                <p class="text-header">Điểm tiêu cực:</p>
+                <p style="color:red">@Model.Negative</p>
+            </div>
+            <!-- /AUTHOR PROFILE INFO ITEM -->
+        </div>
+        <!-- /AUTHOR PROFILE INFO -->
+    </div>
+    
+</div>
+<!-- /AUTHOR PROFILE META -->
+
+<!-- SECTION -->
+<div class="section-wrap">
+    <div class="section overflowable">
+        <!-- SIDEBAR -->
+        <div class="sidebar left author-profile">
+            <!-- SIDEBAR ITEM -->
+            <div class="sidebar-item author-bio">
+                <!-- USER AVATAR -->
+                <a href="user-profile.html" class="user-avatar-wrap medium">
+                    <figure class="user-avatar medium">
+                        <img src="@Url.Content(Model.Image)" style="width:70px;height:70px;" alt="">
+                    </figure>
+                </a>
+                <!-- /USER AVATAR -->
+                <p class="text-header">@Model.Name</p>
+                <!-- SHARE LINKS -->
+                <ul class="share-links">
+                    <li><a class="fb"></a></li>
+                    <li><a class="twt"></a></li>
+                    <li><a class="db"></a></li>
+                </ul>
+                <!-- /SHARE LINKS -->
+            </div>
+            <!-- /SIDEBAR ITEM -->
+            <div class="sidebar-item author-reputation full">
+                <h4>Độ tin cậy</h4>
+                <hr class="line-separator">
+                <!-- PIE CHART -->
+                <div class="pie-chart pie-chart1 xmpiechart" style="width: 176px; height: 176px; position: relative;">
+                    <input type="hidden" id="feed" value="@Model.Feedback"/>
+                    <p class="text-header percent" >@Model.Feedback<span>%</span></p>
+                    @if (Model.Feedback >= 80)
+            {
+                        <p class="text-header percent-info">Tuyệt vời</p>
+                    }
+                    else if (Model.Feedback >= 50)
+                    {
+                        <p class="text-header percent-info">Tốt</p>
+                    }
+                    else
+                    {
+                        <p class="text-header percent-info">Xấu</p>
+                    }
+
+                    <canvas width="176" height="176" style="position: absolute; z-index: 0; top: 0px; left: 0px;"></canvas><canvas class="chartLine" width="176" height="176" style="position: absolute; z-index: 1; top: 0px; left: 0px;"></canvas>
+                </div>
+                <!-- /PIE CHART -->
+            </div>
+        </div>
+        <!-- /SIDEBAR -->
+        <!-- CONTENT -->
+        <div class="content right">
+            <!-- HEADLINE -->
+            <div class="headline buttons primary">
+                <h4>Nhận xét</h4>
+            </div>
+            <!-- /HEADLINE -->
+            <!-- COMMENTS -->
+            <div class="comment-list">
+                <!-- COMMENT -->
+                @Html.Action("ListComment", "Account", new { userID = Model.ID })
+                <!-- /COMMENT -->             
+            </div>
+            <!-- /COMMENTS -->
+        </div>
+        <!-- CONTENT -->
+
+        <div class="clearfix"></div>
+    </div>
+</div>
+<!-- /SECTION -->
+

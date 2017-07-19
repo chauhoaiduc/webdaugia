@@ -1,0 +1,436 @@
+﻿@{
+    ViewBag.Title = "Trang chủ";
+}
+
+@using WebDauGia.Helper
+
+<!-- BANNER -->
+<div class="banner-wrap">
+    <section class="banner">
+        <h5>Chào bạn đến với</h5>
+        <h1>Sàn đấu giá <span>Thế giới ngầm</span></h1>
+        <h1><i class="fa fa-click"></i></h1>
+        <img src="~/images/top_items.png" alt="banner-img">
+    </section>
+</div>
+<!-- /BANNER -->
+
+<!-- TOP PRODUCT NAV -->
+<div class="category-nav-wrap">
+    <div class="category-nav primary">
+        <div class="category-tabs">
+            <div class="category-tab">
+                <p>Ra giá nhiều lần nhất</p>
+            </div>
+
+            <div class="category-tab">
+                <p>Giá cao nhất</p>
+            </div>
+
+            <div class="category-tab">
+                <p>Gần kết thúc</p>
+            </div>
+        </div>
+
+        <!-- SLIDE CONTROLS -->
+        <div class="slide-control-wrap primary">
+            <div class="slide-control left">
+                <!-- SVG ARROW -->
+                <svg class="svg-arrow">
+                    <use xlink:href="#svg-arrow"></use>
+                </svg>
+                <!-- /SVG ARROW -->
+            </div>
+
+            <div class="slide-control right">
+                <!-- SVG ARROW -->
+                <svg class="svg-arrow">
+                    <use xlink:href="#svg-arrow"></use>
+                </svg>
+                <!-- /SVG ARROW -->
+            </div>
+        </div>
+        <!-- /SLIDE CONTROLS -->
+    </div>
+</div>
+<!-- /TOP PRODUCT NAV -->
+
+<!-- PRODUCT SIDESHOW -->
+<div id="product-sideshow-wrap">
+    <div id="product-sideshow">
+
+    @if (ViewBag.TopAuction != null)
+    {
+        <!-- PRODUCT SHOWCASE -->
+        <div class="product-showcase tabbed">
+            <!-- PRODUCT LIST -->
+            <div class="product-list grid column4-wrap">
+            @foreach (var item in @ViewBag.TopAuction)
+            {
+                <!-- PRODUCT ITEM -->
+                <div class="product-item column">
+                @if (item.DateStart.Date == DateTime.Now.Date)
+                {
+                    <div class="ribbon"><span>NEW</span></div>
+                }
+                @if (CurrentContext.IsLogged())
+                {
+                    if (item.WinnerID == CurrentContext.GetUser().ID && item.VendorID != CurrentContext.GetUser().ID)
+                    {
+                        <div class="ribbon"><span>Winner</span></div>
+                    }
+                }
+                
+                    <!-- PRODUCT PREVIEW ACTIONS -->
+                    <div class="product-preview-actions">
+                        <!-- PRODUCT PREVIEW IMAGE -->
+                        <figure class="product-preview-image">
+                            <img src="@Url.Content(@item.LinkImage)" style="width:258px;height:150px;" alt="product-image">
+                        </figure>
+                        <!-- /PRODUCT PREVIEW IMAGE -->
+                        <!-- PREVIEW ACTIONS -->
+                        <div class="preview-actions">
+                            <!-- PREVIEW ACTION -->
+                            <div class="preview-action">
+                                <a href="@Url.Action("Detail","Product",new { productID = item.ID})">
+                                    <div class="circle tiny primary">
+                                        <span class="icon-tag"></span>
+                                    </div>
+                                </a>
+                                <a href="@Url.Action("Detail","Product",new { productID = item.ID})">
+                                    <p>Go to Item</p>
+                                </a>
+                            </div>
+                            <!-- /PREVIEW ACTION -->
+                            <!-- PREVIEW ACTION -->
+                            <div class="preview-action">
+                                <input type="hidden" id="productID" value="@item.ID" />
+                                @if (CurrentContext.IsLogged())
+                                {
+                                    <input type="hidden" id="userID" value="@CurrentContext.GetUser().ID" />
+                                    @Html.Action("CheckFavourites", "Home", new { productID = item.ID })
+                                }
+                                else
+                                {
+                                    <a>
+                                        <div class="circle tiny secondary">
+                                            <span class="icon-heart"></span>
+                                        </div>
+                                    </a>
+                                            <p>Favourites +</p>
+                                } 
+                            </div>
+                            <!-- /PREVIEW ACTION -->
+                        </div>
+                        <!-- /PREVIEW ACTIONS -->
+                    </div>
+                    <!-- /PRODUCT PREVIEW ACTIONS -->
+                    <!-- PRODUCT INFO -->
+                    <div class="product-info">
+                        <a href="@Url.Action("Detail","Product",new { productID = item.ID})">
+                            <p class="text-header truncate">@item.Name</p>
+                        </a>
+                        <hr class="line-separator">
+                        <a>
+                            <p class="category tertiary">Còn lại: @((item.DateEnd.Date - DateTime.Now.Date).Days) Ngày</p>
+                        </a>
+                        <p class="price">@item.Price$</p>
+
+
+                    </div>
+                    <!-- /PRODUCT INFO -->
+
+                    <hr class="line-separator">
+                    <div class="product-info">
+                        @if (item.BuyItNow != 0)
+                        {
+                        <!-- BUY IT NOW -->
+                            <a>
+                                <p class="category primary">Giá mua ngay:</p>
+                            </a>
+                            <p class="price">@item.BuyItNow$</p>
+                        <!-- /BUY IT NOW -->
+                        }
+                        else
+                        {
+                        <!-- Category Name -->
+                            <a href="@Url.Action("ByCategory", "Product", new { catid=item.CateID})">
+                                <p class="category primary">@item.CateName</p>
+                            </a>
+                        <!-- /Category Name -->
+                        }
+                        </div>
+                        <hr class="line-separator">
+
+                        <!-- USER RATING -->
+                        <div class="user-rating">
+                            <a href="author-profile.html">
+                                <figure class="user-avatar small">
+                                    <img src="@Url.Content(@item.ImageUser)" style="width:26px;height:26px;" alt="user-avatar">
+                                </figure>
+                            </a>
+                            <a href="author-profile.html">
+                                <p class="text-header tiny">@CurrentContext.Hidden(item.Winner)</p>
+                            </a>
+                        </div>
+                        <!-- /USER RATING -->
+                    </div>
+                <!-- /PRODUCT ITEM -->
+            }
+            </div>
+            <!-- /PRODUCT LIST -->
+        </div>
+        <!-- /PRODUCT SHOWCASE -->
+    }
+
+    @if (ViewBag.TopPrice != null)
+    {
+        <!-- PRODUCT SHOWCASE -->
+        <div class="product-showcase tabbed">
+            <!-- PRODUCT LIST -->
+            <div class="product-list grid column4-wrap">
+                @foreach (var item in @ViewBag.TopPrice)
+                {
+                <!-- PRODUCT ITEM -->
+                    <div class="product-item column">
+                        @if (item.DateStart.Date == DateTime.Now.Date)
+                        {
+                            <div class="ribbon"><span>NEW</span></div>
+                        }
+                        @if (CurrentContext.IsLogged())
+                        {
+                            if (item.WinnerID == CurrentContext.GetUser().ID && item.VendorID != CurrentContext.GetUser().ID)
+                            {
+                                <div class="ribbon"><span>Winner</span></div>
+                            }
+                        }
+
+                        <!-- PRODUCT PREVIEW ACTIONS -->
+                        <div class="product-preview-actions">
+                            <!-- PRODUCT PREVIEW IMAGE -->
+                            <figure class="product-preview-image">
+                                <img src="@Url.Content(@item.LinkImage)" style="width:258px;height:150px;" alt="product-image">
+                            </figure>
+                            <!-- /PRODUCT PREVIEW IMAGE -->
+                            <!-- PREVIEW ACTIONS -->
+                            <div class="preview-actions">
+                                <!-- PREVIEW ACTION -->
+                                <div class="preview-action">
+                                    <a href="@Url.Action("Detail","Product",new { productID = item.ID})">
+                                        <div class="circle tiny primary">
+                                            <span class="icon-tag"></span>
+                                        </div>
+                                    </a>
+                                    <a href="@Url.Action("Detail","Product",new { productID = item.ID})">
+                                        <p>Go to Item</p>
+                                    </a>
+                                </div>
+                                <!-- /PREVIEW ACTION -->
+                                <!-- PREVIEW ACTION -->
+                                <div class="preview-action">
+                                    <input type="hidden" id="productID" value="@item.ID" />
+                                    @if (CurrentContext.IsLogged())
+                                    {
+                                        <input type="hidden" id="userID" value="@CurrentContext.GetUser().ID" />
+                                        @Html.Action("CheckFavourites", "Home", new { productID = item.ID })
+                                    }
+                                    else
+                                    {
+                                        <a>
+                                            <div class="circle tiny secondary">
+                                                <span class="icon-heart"></span>
+                                            </div>
+                                        </a>
+                                        <p>Favourites +</p>
+                                    }
+                                </div>
+                                <!-- /PREVIEW ACTION -->
+                            </div>
+                            <!-- /PREVIEW ACTIONS -->
+                        </div>
+                        <!-- /PRODUCT PREVIEW ACTIONS -->
+                        <!-- PRODUCT INFO -->
+                        <div class="product-info">
+                            <a href="@Url.Action("Detail","Product",new { productID = item.ID})">
+                                <p class="text-header truncate">@item.Name</p>
+                            </a>
+                            <hr class="line-separator">
+                            <a>
+                                <p class="category tertiary">Còn lại: @((item.DateEnd.Date - DateTime.Now.Date).Days) Ngày</p>
+                            </a>
+                            <p class="price">@item.Price$</p>
+
+
+                        </div>
+                        <!-- /PRODUCT INFO -->
+
+                        <hr class="line-separator">
+                        <div class="product-info">
+                            @if (item.BuyItNow != 0)
+                            {
+                        <!-- BUY IT NOW -->
+                                <a>
+                                    <p class="category primary">Giá mua ngay:</p>
+                                </a>
+                                <p class="price">@item.BuyItNow$</p>
+                        <!-- /BUY IT NOW -->
+                            }
+                            else
+                            {
+                        <!-- Category Name -->
+                                <a href="@Url.Action("ByCategory", "Product", new { catid=item.CateID})">
+                                    <p class="category primary">@item.CateName</p>
+                                </a>
+                        <!-- /Category Name -->
+                            }
+                        </div>
+                        <hr class="line-separator">
+
+                        <!-- USER RATING -->
+                        <div class="user-rating">
+                            <a href="author-profile.html">
+                                <figure class="user-avatar small">
+                                    <img src="@Url.Content(@item.ImageUser)" style="width:26px;height:26px;" alt="user-avatar">
+                                </figure>
+                            </a>
+                            <a href="author-profile.html">
+                                <p class="text-header tiny">@CurrentContext.Hidden(item.Winner)</p>
+                            </a>
+                        </div>
+                        <!-- /USER RATING -->
+                    </div>
+                <!-- /PRODUCT ITEM -->
+                }
+            </div>
+            <!-- /PRODUCT LIST -->
+        </div>
+        <!-- /PRODUCT SHOWCASE -->
+    }
+
+    @if (ViewBag.TopDateEnd != null)
+    {
+        <!-- PRODUCT SHOWCASE -->
+        <div class="product-showcase tabbed">
+            <!-- PRODUCT LIST -->
+            <div class="product-list grid column4-wrap">
+                @foreach (var item in @ViewBag.TopDateEnd)
+                {
+                    <!-- PRODUCT ITEM -->
+                    <div class="product-item column">
+                        @if (item.DateStart.Date == DateTime.Now.Date)
+                        {
+                            <div class="ribbon"><span>NEW</span></div>
+                        }
+                        @if (CurrentContext.IsLogged())
+                        {
+                            if (item.WinnerID == CurrentContext.GetUser().ID && item.VendorID!= CurrentContext.GetUser().ID)
+                            {
+                                <div class="ribbon"><span>Winner</span></div>
+                            }
+                        }
+
+                        <!-- PRODUCT PREVIEW ACTIONS -->
+                        <div class="product-preview-actions">
+                            <!-- PRODUCT PREVIEW IMAGE -->
+                            <figure class="product-preview-image">
+                                <img src="@Url.Content(@item.LinkImage)" style="width:258px;height:150px;" alt="product-image">
+                            </figure>
+                            <!-- /PRODUCT PREVIEW IMAGE -->
+                            <!-- PREVIEW ACTIONS -->
+                            <div class="preview-actions">
+                                <!-- PREVIEW ACTION -->
+                                <div class="preview-action">
+                                    <a href="@Url.Action("Detail","Product",new { productID = item.ID})">
+                                        <div class="circle tiny primary">
+                                            <span class="icon-tag"></span>
+                                        </div>
+                                    </a>
+                                    <a href="@Url.Action("Detail","Product",new { productID = item.ID})">
+                                        <p>Go to Item</p>
+                                    </a>
+                                </div>
+                                <!-- /PREVIEW ACTION -->
+                                <!-- PREVIEW ACTION -->
+                                <div class="preview-action">
+                                    <input type="hidden" id="productID" value="@item.ID" />
+                                    @if (CurrentContext.IsLogged())
+                                    {
+                                        <input type="hidden" id="userID" value="@CurrentContext.GetUser().ID" />
+                                        @Html.Action("CheckFavourites", "Home", new { productID = item.ID })
+                                    }
+                                    else
+                                    {
+                                        <a>
+                                            <div class="circle tiny secondary">
+                                                <span class="icon-heart"></span>
+                                            </div>
+                                        </a>
+                                        <p>Favourites +</p>
+                                    }
+                                </div>
+                                <!-- /PREVIEW ACTION -->
+                            </div>
+                            <!-- /PREVIEW ACTIONS -->
+                        </div>
+                        <!-- /PRODUCT PREVIEW ACTIONS -->
+                        <!-- PRODUCT INFO -->
+                        <div class="product-info">
+                            <a href="@Url.Action("Detail","Product",new { productID = item.ID})">
+                                <p class="text-header truncate">@item.Name</p>
+                            </a>
+                            <hr class="line-separator">
+                            <a>
+                                <p class="category tertiary">Còn lại: @((item.DateEnd.Date - DateTime.Now.Date).Days) Ngày</p>
+                            </a>
+                            <p class="price">@item.Price$</p>
+
+
+                        </div>
+                        <!-- /PRODUCT INFO -->
+
+                        <hr class="line-separator">
+                        <div class="product-info">
+                            @if (item.BuyItNow != 0)
+                            {
+                        <!-- BUY IT NOW -->
+                                <a>
+                                    <p class="category primary">Giá mua ngay:</p>
+                                </a>
+                                <p class="price">@item.BuyItNow$</p>
+                        <!-- /BUY IT NOW -->
+                            }
+                            else
+                            {
+                        <!-- Category Name -->
+                                <a href="@Url.Action("ByCategory", "Product", new { catid=item.CateID})">
+                                    <p class="category primary">@item.CateName</p>
+                                </a>
+                        <!-- /Category Name -->
+                            }
+                        </div>
+                        <hr class="line-separator">
+
+                        <!-- USER RATING -->
+                        <div class="user-rating">
+                            <a href="author-profile.html">
+                                <figure class="user-avatar small">
+                                    <img src="@Url.Content(@item.ImageUser)" style="width:26px;height:26px;" alt="user-avatar">
+                                </figure>
+                            </a>
+                            <a href="author-profile.html">
+                                <p class="text-header tiny">@CurrentContext.Hidden(item.Winner)</p>
+                            </a>
+                        </div>
+                        <!-- /USER RATING -->
+                    </div>
+                <!-- /PRODUCT ITEM -->
+                }
+            </div>
+            <!-- /PRODUCT LIST -->
+        </div>
+        <!-- /PRODUCT SHOWCASE -->
+    }
+
+    </div>
+</div>
+<!-- /PRODUCT SIDESHOW -->

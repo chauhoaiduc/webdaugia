@@ -1,0 +1,43 @@
+﻿@using WebDauGia.Models
+@model List<Category>
+<ul class="main-menu">
+    <!-- MENU ITEM -->
+    <li class="menu-item">
+        <a href="@Url.Action("Index","Home")">Home</a>
+    </li>
+    <!-- /MENU ITEM -->
+    <!-- MENU ITEM -->
+    <li class="menu-item sub">
+        <a href="#">
+            Sản phẩm
+            <svg class="svg-arrow">
+                <use xlink:href="#svg-arrow" />
+            </svg>
+        </a>
+        <div class="content-dropdown">
+            <div class="feature-list-block">
+                <h6 class="feature-list-title">Theo thể loại</h6>
+                <hr class="line-separator">
+                <!-- FEATURE LIST -->
+                <ul class="feature-list">
+                    @foreach (var item in Model)
+                    {
+                        <!-- FEATURE LIST ITEM -->
+                        <li class="feature-list-item">
+                            <a href="@Url.Action("ByCategory", "Product", new { catid=item.ID})">@item.Name</a>
+                        </li>
+                    <!-- /FEATURE LIST ITEM -->
+                    }
+                    
+                </ul>
+                <!-- /FEATURE LIST -->
+            </div>
+        </div>
+    </li>
+    <!-- /MENU ITEM -->
+
+</ul>
+<form class="search-form" method="get" action="@Url.Action("Search","Product")">
+    <input type="text" class="rounded" name="search" id="search" placeholder="Tìm kiếm sản phẩm tại đây ...">
+    <input type="image" src="~/images/search-icon.png" alt="search-icon"/>
+</form>

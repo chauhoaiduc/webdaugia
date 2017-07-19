@@ -1,0 +1,60 @@
+﻿
+@{
+    ViewBag.Title = "Chỉnh sửa thể loại";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+@section scripts{
+    <script src="~/Helper/jquery-validate/jquery.validate.min.js"></script>
+    <script>
+
+        $("#frm-edit").validate({
+            rules: {
+                Name: {
+                    required: true
+                }
+            },
+            messages: {
+                Name: {
+                    required: "Vui lòng nhập tên thể loại !"
+                }
+            }
+        });
+    </script>
+}
+
+@model WebDauGia.Models.Category
+<!-- HEADLINE -->
+<div class="headline purchases primary">
+    <h4>@ViewBag.Title</h4>
+</div>
+<!-- /HEADLINE -->
+@if (ViewBag.Success != null)
+{
+    <center>
+        <div class="alert alert-success" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <strong>Success!</strong> @ViewBag.Success
+        </div>
+    </center>
+}
+
+<div class="form-box-items">
+    <!-- FORM BOX ITEM -->
+    <div class="form-box-item">
+        <h4>Profile Information</h4>
+        <hr class="line-separator">
+
+        <form id="frm-edoit" action="" method="post">
+            <input type="hidden" name="ID" value="@Model.ID" />
+            <!-- INPUT CONTAINER -->
+            <div class="input-container">
+                <label for="Name" class="rl-label required">Tên thể loại</label>
+                <input type="text" id="Name" name="Name" value="@Model.Name" placeholder="Nhập tên thể loại ở đây ...">
+            </div>
+            <!-- /INPUT CONTAINER -->
+            <button class="button mid dark">Lưu <span class="primary">thay đổi</span></button>
+        </form>
+    </div>
+    <!-- /FORM BOX ITEM -->
+</div>

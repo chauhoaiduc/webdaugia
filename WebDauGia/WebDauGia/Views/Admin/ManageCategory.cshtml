@@ -1,0 +1,149 @@
+﻿
+@{
+    ViewBag.Title = "Quản lý thể loại";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+@section scripts{
+    <script src="~/Helper/jquery-validate/jquery.validate.min.js"></script>
+    <script>
+
+        $("#frm-add").validate({
+            rules: {
+                Name: {
+                    required: true
+                }
+            },
+            messages: {
+                Name: {
+                    required: "Vui lòng nhập tên thể loại !"
+                }
+            }
+        });
+    </script>
+}
+
+@using WebDauGia.Models
+@model List<Category>
+
+<!-- HEADLINE -->
+<div class="headline purchases primary">
+    <h4>@ViewBag.Title</h4>
+    <a href="#add-cate"  class="button mid-short primary open-recommendation-form">Thêm thể loại mới</a>
+    <!-- FORM POPUP -->
+    <div id="add-cate" class="form-popup new-message mfp-hide">
+        <!-- FORM POPUP CONTENT -->
+        <div class="form-popup-content">
+            <h4 class="popup-title">Thêm thể loại mới</h4>
+            <!-- LINE SEPARATOR -->
+            <hr class="line-separator">
+            <!-- /LINE SEPARATOR -->
+            <form id="frm-add" action="@Url.Action("AddCategory","Admin")" method="post">
+                <!-- INPUT CONTAINER -->
+                <div class="input-container">
+                    <label for="Name" class="rl-label b-label">Tên thể loại</label>
+                    <input type="text" name="Name" id="Name" placeholder="Nhập tên thể loại ở đây ....." />
+                </div>
+                <button class="button mid dark">Thêm <span class="primary">thể loại mới</span></button>
+            </form>
+        </div>
+        <!-- /FORM POPUP CONTENT -->
+        <div class="close-btn mfp-close"><svg class="svg-plus"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#svg-plus"></use></svg></div>
+    </div>
+    <!-- FORM POPUP -->
+</div>
+<!-- /HEADLINE -->
+@if (ViewBag.Message != null)
+{
+    <center>
+        <div class="alert alert-success" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <strong>Success!</strong> @ViewBag.Message
+        </div>
+    </center>
+}
+<!-- PURCHASES LIST -->
+<div class="purchases-list">
+    <!-- PURCHASES LIST HEADER -->
+    <div class="purchases-list-header">
+        
+        <div class="purchases-list-header-info" style="width:250px;padding-left:50px;">
+            <p class="text-header small">Tên thể loại</p>
+        </div>
+        <div class="purchases-list-header-recommend">
+            <p class="text-header small">Xóa thể loại</p>
+        </div>
+        <div class="purchases-list-header-recommend">
+            <p class="text-header small">Sửa thể loại</p>
+        </div>
+    </div>
+    <!-- /PURCHASES LIST HEADER -->
+    @foreach (var item in Model)
+    {
+        <!-- PURCHASE ITEM -->
+        <div class="purchase-item">
+            
+            <div class="purchase-item-info" style="width:250px;padding-left:50px;">
+                <strong class="category primary text-header" style="font-size:18px;">&nbsp;@item.Name</strong>
+            </div>
+            <div class="purchase-item-recommend">
+                <div class="recommendation-wrap">
+                    <a href="#@item.ID" class="recommendation bad hoverable open-recommendation-form">
+                        <span class="icon-trash icon-center"></span>
+                    </a>
+                </div>
+                <!-- FORM POPUP -->
+                <div id="@item.ID" class="form-popup new-message mfp-hide">
+                    <!-- FORM POPUP CONTENT -->
+                    <div class="form-popup-content">
+                        <h4 class="popup-title">Chỉnh sửa thể loại</h4>
+                        <!-- LINE SEPARATOR -->
+                        <hr class="line-separator">
+                        <!-- /LINE SEPARATOR -->
+                        <form action="@Url.Action("RemoveCategory","Admin",new { id=item.ID})" method="post">
+                            <input type="hidden" name="id" value="@item.ID" />
+                            <!-- INPUT CONTAINER -->
+                            <div class="input-container">
+                                <label for="Name" class="rl-label b-label">Bạn có muốn xóa thể loại</label>
+                                <input type="text" name="Name" id="Name" value="@item.Name" readonly="readonly"/>
+                            </div>
+                            <button class="button mid dark">Lưu <span class="primary">thay đổi</span></button>
+                        </form>
+                    </div>
+                    <!-- /FORM POPUP CONTENT -->
+                </div>
+                <!-- FORM POPUP -->
+            </div>
+            <div class="purchase-item-recommend">
+                <div class="recommendation-wrap">
+                    <a href="@Url.Action("EditCategory","Admin",new { id=item.ID})" class="recommendation good hoverable">
+                        <span class="icon-pencil icon-center"></span>
+                    </a>
+                </div>
+                
+            </div>
+        </div>
+    <!-- /PURCHASE ITEM -->
+    }
+
+    <!-- PAGER -->
+    <div class="pager-wrap">
+        <div class="pager primary">
+            <div class="pager-item">
+                <a href="?index=@ViewBag.Previous" aria-label="Previous">
+                    <p>&laquo;</p>
+                </a>
+            </div>
+            @for (int i = 1; i <= ViewBag.Pages; i++)
+            {
+                <div class="pager-item"><a href="?index=@i"><p>@i</p></a></div>
+            }
+            <div class="pager-item">
+                <a href="?index=@ViewBag.Next" aria-label="Next">
+                    <p>&raquo;</p>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- /PAGER -->
+</div>
+<!-- /PURCHASES LIST -->

@@ -1,0 +1,192 @@
+﻿
+@{
+    ViewBag.Title = "Đăng sản phẩm";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+@section scripts{
+<script src="~/Helper/jquery-validate/jquery.validate.min.js"></script>
+    <script>
+        $("#upload_form").validate({
+            rules: {
+                Name: {
+                    required: true
+                },
+                Des: {
+                    required: true
+                },
+            },
+
+            messages: {
+                Name: {
+                    required: 'Vui lòng nhập tên sản phẩm'
+                },
+                Des: {
+                    required: 'Vui lòng nhập mô tả sản phẩm'
+                },
+            }
+
+        });
+
+        $("#ShowBuyItNow").click(function () {
+            if ($(this).is(":checked") == true) {
+                $("#buyitnow").show();
+            }
+            else
+            {
+                $("#buyitnow").hide();
+            }
+            
+        });
+
+        $("#buyitnow").hide();
+
+        $(".number-price").change(function () {
+            if ($(this).val() < 1)
+            {
+                $(this).val(1);
+            }
+        });
+
+        $(".multiple-image input").change(function () {
+            var input = event.target;
+            var arr = $('.multiple-image input');
+            var i = 0;
+            for (; i < arr.length; i++) {
+                if (input.value == arr[i].value) {
+                    break;
+                }
+            }
+            var output = $('.multiple-image img')[i];
+            output.src = URL.createObjectURL(event.target.files[0]);
+        });
+    </script>
+    }
+
+@model SelectList
+
+<div class="headline simple primary">
+    <h4>@ViewBag.Title</h4>
+</div>
+@if (ViewBag.Message != null)
+{
+    <center>
+        <div class="alert alert-danger" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <strong>Warning!</strong> @ViewBag.Message
+        </div>
+    </center>
+}
+@if (ViewBag.Success != null)
+{
+    <center>
+        <div class="alert alert-success" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <strong>Success !</strong> @ViewBag.Success
+        </div>
+    </center>
+}
+<div class="form-box-items wrap-3-1 left">
+    <!-- FORM BOX ITEM -->
+    <div class="form-box-item full">
+        <h4>Điền thông tin sản phẩm</h4>
+        <hr class="line-separator">
+        <form id="upload_form" action="" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <!-- INPUT CONTAINER -->
+            <div class="input-container">
+                <label for="category" class="rl-label required">Thể loại</label>
+                
+                <label for="category" class="select-block">
+                    @Html.DropDownList("CategoryID", Model, htmlAttributes: new { @class = "form-control" })
+                    <!-- SVG ARROW -->
+                    <svg class="svg-arrow">
+                        <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#svg-arrow"></use>
+                    </svg>
+                    <!-- /SVG ARROW -->
+                </label>
+            </div>
+            <!-- /INPUT CONTAINER -->
+            <!-- INPUT CONTAINER -->
+            <div class="input-container">
+                <label for="Name" class="rl-label required">Tên sản phẩm</label>
+                <input type="text" id="Name" name="Name" placeholder="Nhập tên sản phẩm ở đây...">
+            </div>
+            <!-- /INPUT CONTAINER -->
+            <!-- INPUT CONTAINER -->
+            <div class="input-container">
+                <label for="Des" class="rl-label required">Mô tả sản phẩm</label>
+                <textarea id="Des" name="Des" placeholder="Nhập mô tả sản phẩm ở đây..."></textarea>
+            </div>
+            <!-- /INPUT CONTAINER -->
+            <!-- INPUT CONTAINER -->
+            <div class="input-container">
+                <label class="rl-label required">Upload hình sản phẩm</label>
+                <!-- UPLOAD FILE -->
+                <div class="multiple-image">
+                    <div class="item">
+                        <label for="file1">
+                            <img src="~/Images/camera-photo.png" title="Nhấp vào hình ảnh để chọn ảnh." alt="image" />
+                        </label>
+                        <input id="file1" style="display:none;" name="fileinput" type="file" />
+                    </div>
+                    <div class="item">
+                        <label for="file2">
+                            <img src="~/Images/camera-photo.png" title="Nhấp vào hình ảnh để chọn ảnh." alt="image" />
+                        </label>
+                        <input id="file2" style="display:none;" name="fileinput" type="file" />
+                    </div>
+                    <div class="item">
+                        <label for="file3">
+                            <img src="~/Images/camera-photo.png" title="Nhấp vào hình ảnh để chọn ảnh." alt="image" />
+                        </label>
+                        <input id="file3" style="display:none;" name="fileinput" type="file" />
+                    </div>
+                </div>
+                <!-- UPLOAD FILE -->
+            </div>
+            <!-- /INPUT CONTAINER -->
+            <!-- INPUT CONTAINER -->
+            <div class="input-container">
+                <label for="Price" class="rl-label required">Giá khởi điểm</label>
+                <input name="Price" id="Price" class="number-price" type="number" min="1" step="1" value="1"  placeholder="Nhập giá khởi điểm ở đây....."/>
+            </div>
+            <!-- /INPUT CONTAINER -->
+            <!-- INPUT CONTAINER -->
+            <div class="input-container">
+                <label for="StepPrice" class="rl-label required">Bước giá</label>
+                <input name="StepPrice" id="StepPrice" class="number-price" type="number" min="1" step="1" value="1" placeholder="Nhập giá khởi điểm ở đây....." />
+            </div>
+            <!-- /INPUT CONTAINER -->
+            <!-- INPUT CONTAINER -->
+            <div class="input-container">
+                <input type="checkbox" id="ShowBuyItNow" name="ShowBuyItNow">
+                <label for="ShowBuyItNow" class="label-check">
+                    <span class="checkbox primary"><span></span></span>
+                    Sản phẩm có giá mua ngay
+                </label>
+            </div>
+            <!-- /INPUT CONTAINER -->
+            <!-- INPUT CONTAINER -->
+            <div class="input-container" id="buyitnow">
+                <label for="BuyNowPrice" class="rl-label required">Giá mua ngay</label>
+                <input name="BuyNowPrice" id="BuyNowPrice" class="number-price" type="number" min="1" step="1" value="1" placeholder="Nhập giá khởi điểm ở đây....." />
+            </div>
+            <!-- /INPUT CONTAINER -->
+            <!-- INPUT CONTAINER -->
+            <div class="input-container">
+                <input type="checkbox" id="AutoExtend" name="AutoExtend">
+                <label for="AutoExtend" class="label-check">
+                    <span class="checkbox primary"><span></span></span>
+                    Tự động gia hạn (* Tính năng này sẽ khiến bạn mất 10$)
+                </label>
+            </div>
+            <!-- /INPUT CONTAINER -->
+
+            <hr class="line-separator">
+            <button class="button big dark"><span class="primary">Đăng sản phẩm ngay</span></button>
+        </form>
+    </div>
+    <!-- /FORM BOX ITEM -->
+</div>
+

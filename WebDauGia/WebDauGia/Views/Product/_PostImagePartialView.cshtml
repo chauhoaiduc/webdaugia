@@ -1,0 +1,25 @@
+﻿@model List<WebDauGia.Models.Photo>
+
+
+<figure class="product-preview-image large liquid">
+    <img src="@Url.Content(Model.ElementAt(0).Name)" alt="">
+</figure>
+<!-- IMAGE OVERLAY -->
+<div class="image-overlay img-gallery">
+    <div class="clickable-icon tertiary">
+        <!-- SVG PLUS -->
+        <svg class="svg-plus">
+            <use xlink:href="#svg-plus"></use>
+        </svg>
+        <!-- /SVG PLUS -->
+    </div>
+    <!-- GALLERY ITEMS -->
+    <div class="gallery-items">
+        @foreach (var item in Model)
+        {          
+            <span data-mfp-src="@Url.Content(item.Name)"></span>
+        }
+    </div>
+    <!-- /GALLERY ITEMS -->
+</div>
+<!-- /IMAGE OVERLAY -->

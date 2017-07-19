@@ -1,0 +1,203 @@
+﻿
+@{
+    ViewBag.Title = "Sản phẩm đã có người mua";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+@using WebDauGia.Helper
+@using WebDauGia.Models
+@model List<WinProductViewModel>
+
+@section scripts{
+    <script src="~/Helper/jquery-validate/jquery.validate.min.js"></script>
+    <script>
+        $("#Point").val(1);
+        $("#like").click(function () {
+            $("#Point").val(1);
+            if ($("#like").hasClass("good") == false) {
+                $("#like").addClass("good");
+                $("#dislike").removeClass("bad");
+            }
+        });
+        $("#dislike").click(function () {
+            $("#Point").val(-1);
+            if ($("#dislike").hasClass("bad") == false) {
+                $("#dislike").addClass("bad");
+                $("#like").removeClass("good");
+            }
+        });
+
+        $("#frm-comment").validate({
+            rules: {
+                Comment: {
+                    required: true
+                }
+            },
+            messages: {
+                Comment: {
+                    required: "Vui lòng nhập bình luận !"
+                }
+            }
+        });
+    </script>
+}
+
+<!-- HEADLINE -->
+<div class="headline purchases primary">
+    <h4>@ViewBag.Title</h4>
+</div>
+@if (ViewBag.Message != null)
+{
+    <center>
+        <div class="alert alert-success" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <strong>Success!</strong> @ViewBag.Message
+        </div>
+    </center>
+}
+<!-- /HEADLINE -->
+<!-- PURCHASES LIST -->
+<div class="purchases-list">
+    <!-- PURCHASES LIST HEADER -->
+    <div class="purchases-list-header">
+        <div class="purchases-list-header-date">
+            <p class="text-header small">Ngày</p>
+        </div>
+        <div class="purchases-list-header-details">
+            <p class="text-header small">Chi tiết sản phẩm</p>
+        </div>
+        <div class="purchases-list-header-price">
+            <p class="text-header small">Giá của sản phẩm</p>
+        </div>
+        <div class="purchases-list-header-recommend">
+            <p class="text-header small">Đánh giá</p>
+        </div>
+        <div class="purchases-list-header-info">
+            <p class="text-header small">Bình luận</p>
+        </div>
+    </div>
+    <!-- /PURCHASES LIST HEADER -->
+    @foreach (var item in Model)
+    {
+        <!-- PURCHASE ITEM -->
+        <div class="purchase-item">
+            <div class="purchase-item-date">
+                <p>@item.DateEnd.Value.Date</p>
+            </div>
+            <div class="purchase-item-details">
+                <!-- ITEM PREVIEW -->
+                <div class="item-preview">
+                    <figure class="product-preview-image small liquid">
+                        <img src="@Url.Content(item.Image)" alt="product-image">
+                    </figure>
+                    <a href="@Url.Action("Detail", "Product", new { productID = item.ID })" class="text-header truncate-details">@item.Name</a>
+                    <p class="description truncate-details">@item.Des</p>
+                </div>
+                <!-- /ITEM PREVIEW -->
+            </div>
+            <div class="purchase-item-price">
+                <p class="price">@item.PriceAuction<span>$</span></p>
+            </div>
+            @{ ViewBag.CommentWinner = CurrentContext.IsCommentWinner(item.WinnerID.Value, item.ID);}
+            @if (ViewBag.CommentWinner != null)
+            {
+                <div class="purchase-item-recommend">
+                    <div class="recommendation-wrap">
+                        @if (ViewBag.CommentWinner.Point > 0)
+                        {
+                            <a class="recommendation good">
+                                <span class="icon-like"></span>
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="recommendation bad">
+                                <span class="icon-dislike"></span>
+                            </a>
+                        }
+
+                    </div>
+                </div>
+                <div class="purchase-item-info">
+                    <p class="text-header tiny">@ViewBag.CommentWinner.Comment</p>
+                </div>
+            }
+            else
+            {
+                <div class="purchase-item-recommend">
+                    <div class="recommendation-wrap">
+                        <a href="#@item.ID" class="recommendation good hoverable open-recommendation-form">
+                            <span class="icon-like"></span>
+                        </a>
+                        <!-- FORM POPUP -->
+                        <div id="@item.ID" class="form-popup new-message mfp-hide">
+                            <!-- FORM POPUP CONTENT -->
+                            <div class="form-popup-content">
+                                <h4 class="popup-title">Đánh giá</h4>
+                                <!-- LINE SEPARATOR -->
+                                <hr class="line-separator">
+                                <!-- /LINE SEPARATOR -->
+                                <div class="recommendation-wrap">
+                                    <div class="recommendation-item">
+                                        <a href="#" id="like" class="recommendation good">
+                                            <span class="icon-like"></span>
+                                        </a>
+                                        <p class="text-header small">Tích cực</p>
+                                    </div>
+
+                                    <div class="recommendation-item">
+                                        <a href="#" id="dislike" class="recommendation">
+                                            <span class="icon-dislike"></span>
+                                        </a>
+                                        <p class="text-header small">Tiêu cực</p>
+                                    </div>
+                                </div>
+                                <form id="frm-comment" class="recommendation-form" action="@Url.Action("CommentWinner","Account")" method="post">
+                                    <!-- INPUT CONTAINER -->
+                                    <input type="hidden" name="UserID" value="@item.WinnerID" />
+                                    <input type="hidden" name="Point" id="Point" />
+                                    <input type="hidden" name="ProductID" value="@item.ID" />
+                                    <div class="input-container">
+                                        <label for="Comment" class="rl-label b-label">Your Comment:</label>
+                                        <textarea name="Comment" id="Comment" placeholder="Ghi bình luận của bạn ở đây ..."></textarea>
+                                    </div>
+                                    <button class="button mid dark">Lưu <span class="primary">đánh giá</span></button>
+                                </form>
+                            </div>
+                            <!-- /FORM POPUP CONTENT -->
+                        </div>
+                        <!-- FORM POPUP -->
+                    </div>
+                </div>
+
+                <div class="purchase-item-info">
+                    <p class="text-header tiny">Chưa bình luận</p>
+                </div>
+            }
+
+
+        </div>
+    <!-- /PURCHASE ITEM -->
+                }
+
+    <!-- PAGER -->
+    <div class="pager-wrap">
+        <div class="pager primary">
+            <div class="pager-item">
+                <a href="?index=@ViewBag.Previous" aria-label="Previous">
+                    <p>&laquo;</p>
+                </a>
+            </div>
+            @for (int i = 1; i <= ViewBag.Pages; i++)
+            {
+                <div class="pager-item"><a href="?index=@i"><p>@i</p></a></div>
+            }
+            <div class="pager-item">
+                <a href="?index=@ViewBag.Next" aria-label="Next">
+                    <p>&raquo;</p>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- /PAGER -->
+</div>
+<!-- /PURCHASES LIST -->

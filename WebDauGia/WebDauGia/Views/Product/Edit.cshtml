@@ -1,0 +1,329 @@
+﻿
+@{
+    ViewBag.Title = "Chỉnh sản thông tin sản phẩm";
+}
+
+@using WebDauGia.Helper
+@model WebDauGia.Models.ProductDetailViewModel
+
+@section css{
+<link href="~/Helper/ckeditor/contents.css" rel="stylesheet" />
+    }
+@section scripts{
+<script src="~/Helper/ckeditor/ckeditor.js"></script>
+<script src="~/Helper/jquery-validate/jquery.validate.min.js"></script>
+    <script>
+        CKEDITOR.replace('Des');
+        CKEDITOR.config.width = 500;
+
+        $("#frmEdit").validate({
+            rules: {
+                Des: {
+                    required: true
+                },
+            },
+            messages: {
+                Des: {
+                    required: 'Vui lòng nhập mô tả sản phẩm'
+                },
+            }
+
+        });
+
+
+    var end = new Date($("#dateEnd").text()).getTime();
+    var x = setInterval(function () {
+        var now = new Date().getTime();
+        var distance = new Date();
+        distance = end - now;
+        // Time calculations for days, hours, minutes and seconds
+        var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        for (seconds = 60 ; seconds <= 0 ; seconds--) {
+            if (seconds < 0) {
+                seconds = 60;
+                minutes--;
+                if (minutes < 0) {
+                    minutes = 60;
+                    hours--;
+                    if (hours < 0) {
+                        hours = 23;
+                        day--;
+                    }
+                }
+            }
+        }
+
+        if (distance < 1000 && distance > 0) {
+            $("#tatstatus").submit();
+        }
+
+        if (distance < 0) {
+            $('.bid-countdown').hide();
+        }
+    }, 1000);
+    </script>
+    <!-- XM Countdown -->
+    <script src="~/Scripts/js/vendor/jquery.xmcountdown.min.js"></script>
+    <!-- Auction Page -->
+    <script src="~/Scripts/js/auction-page.js"></script>
+}
+
+<!-- SECTION HEADLINE -->
+<div class="section-headline-wrap">
+    <div class="section-headline">
+        <h2>@Model.Name</h2>
+    </div>
+</div>
+<!-- /SECTION HEADLINE -->
+<!-- SECTION -->
+<div class="section-wrap">
+    <div class="section">
+        @if (ViewBag.MsgError != null)
+        {
+            <center>
+                <div class="alert alert-danger" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <strong>Warning!</strong> @ViewBag.MsgError
+                </div>
+            </center>
+        }
+        @if (ViewBag.MsgSuccess != null)
+        {
+            <center>
+                <div class="alert alert-success" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <strong>Success!</strong> @ViewBag.MsgSuccess
+                </div>
+            </center>
+        }
+        <!-- SIDEBAR -->
+        <div class="sidebar right">
+            <!-- SIDEBAR ITEM -->
+            <div class="sidebar-item">
+                <h4>Thời gian còn lại</h4>
+                <hr class="line-separator">
+                @if (Model.Status == 0)
+                {
+                    <h4 style="color:red">Đã hết thời gian đấu giá</h4>
+                }
+                else
+                {
+                    <div class="bid-countdown">
+                        <span class="colon">:</span>
+                        <span class="colon">:</span>
+                        <span class="colon">:</span>
+                    </div>
+                }
+
+                <div class="clearfix"></div>
+            </div>
+            <div class="sidebar-item void buttons">
+                <a class="button big dark purchase bid">
+                    <span class="currency truncate-price">@Model.PriceAuction</span>
+                    <small style="font-size:13px;">Current Bid</small>
+                </a>
+            </div>
+            <!-- /SIDEBAR ITEM -->
+            <!-- SIDEBAR ITEM -->
+            <div class="sidebar-item author-bio">
+                <h4>Người bán</h4>
+                <hr class="line-separator">
+                <!-- USER AVATAR -->
+                <a href="@Url.Action("ProfileUser", "Account", new { id = Model.VendorID })" class="user-avatar-wrap medium">
+                    <figure class="user-avatar medium">
+                        <img style="width:70px;height:70px;" src="@Url.Content(Model.VendorImage)" alt="">
+                    </figure>
+                </a>
+                <!-- /USER AVATAR -->
+                <p class="text-header">@Model.VendorName (@Model.FeedbackVendor%)</p>
+                <!-- SHARE LINKS -->
+                <ul class="share-links">
+                    <li><a class="fb"></a></li>
+                    <li><a class="twt"></a></li>
+                    <li><a class="db"></a></li>
+                </ul>
+                <!-- /SHARE LINKS -->
+                <a href="@Url.Action("ProfileUser", "Account", new { id = Model.VendorID })" class="button mid dark spaced">Đi đến <span class="primary">trang cá nhân</span></a>
+            </div>
+            <!-- /SIDEBAR ITEM -->
+            <!-- SIDEBAR ITEM -->
+            <div class="sidebar-item product-info">
+                <h4>Thông tin sản phẩm</h4>
+                <hr class="line-separator">
+                <!-- INFORMATION LAYOUT -->
+                <div class="information-layout">
+                    <!-- INFORMATION LAYOUT ITEM -->
+                    <div class="information-layout-item">
+                        <p class="text-header">Người giữ giá:</p>
+                        <p><a style="color:blue" href="@Url.Action("ProfileUser","Account",new { id=Model.WinnerID})">@Model.WinnerName (@Model.FeedbackWinner%)</a></p>
+                    </div>
+                    <!-- /INFORMATION LAYOUT ITEM -->
+                    <!-- INFORMATION LAYOUT ITEM -->
+                    <div class="information-layout-item">
+                        <p class="text-header">Ngày đăng:</p>
+                        <p>@Model.DateStart</p>
+                    </div>
+                    <!-- /INFORMATION LAYOUT ITEM -->
+                    <!-- INFORMATION LAYOUT ITEM -->
+                    <div class="information-layout-item">
+                        <p class="text-header">Ngày kết thúc:</p>
+                        <p id="dateEnd">@Model.DateEnd</p>
+                    </div>
+                    <!-- /INFORMATION LAYOUT ITEM -->
+                </div>
+                <!-- INFORMATION LAYOUT -->
+            </div>
+            <!-- /SIDEBAR ITEM -->
+
+        </div>
+        <!-- /SIDEBAR -->
+        <!-- CONTENT -->
+        <div class="content left">
+            <!-- POST -->
+            <article class="post">
+                <!-- POST IMAGE -->
+                <div class="post-image">
+                    @if (Model.Status == 0)
+                    {
+                        <div class="ribbon"><span>SOLD</span></div>
+                    }
+                    @Html.Action("PostImage", "Product", new { productID = Model.ID })
+                </div>
+                <!-- /POST IMAGE -->
+                <!-- POST CONTENT -->
+                <div class="post-content">
+                    <!-- POST PARAGRAPH -->
+                    <div class="post-paragraph">
+                        <h3 class="post-title">Mô tả chi tiết sản phẩm</h3>
+                        <p>@Html.Raw(Model.Description)</p>
+                    </div>
+                    <!-- /POST PARAGRAPH -->
+                </div>
+                <!-- /POST CONTENT -->
+
+                <hr class="line-separator">
+
+                <!-- SHARE -->
+                <div class="share-links-wrap">
+                    <p class="text-header small">Share this:</p>
+                    <!-- SHARE LINKS -->
+                    <ul class="share-links hoverable">
+                        <li><a class="fb"></a></li>
+                        <li><a class="twt"></a></li>
+                        <li><a class="db"></a></li>
+                        <li><a class="rss"></a></li>
+                        <li><a class="gplus"></a></li>
+                    </ul>
+                    <!-- /SHARE LINKS -->
+                </div>
+                <!-- /SHARE -->
+            </article>
+            <!-- /POST -->
+            <div class="post">
+                <!-- POST CONTENT -->
+                <div class="post-content">
+                    <form id="frmEdit" action="@Url.Action("Edit","Product")" method="post">
+                        <!-- INPUT CONTAINER -->
+                        <input type="hidden" name="ProductID" value="@Model.ID" />
+                        <!-- POST PARAGRAPH -->
+                        <div class="post-paragraph">
+                            <h3 class="post-title">Thêm mô tả sản phẩm</h3>
+                            <textarea name="Des" id="Des" placeholder="Thêm mô tả của sản phẩm ở đây ..."></textarea>
+                        </div>
+                        <!-- /POST PARAGRAPH -->
+                        <button class="button mid dark">Lưu <span class="primary">thay đổi</span></button>
+                    </form>
+                    
+                </div>
+                <!-- /POST CONTENT -->
+            </div>
+            <div class="post">
+                <!-- POST CONTENT -->
+                <div class="post-content">
+                    <!-- PURCHASES LIST -->
+                    <div class="purchases-list">
+                        <!-- PURCHASES LIST HEADER -->
+                        <div class="purchases-list-header">
+                            <div class="purchases-list-header-date" style="width:180px;">
+                                <p class="text-header small" >Ngày đấu giá</p>
+                            </div>
+                            <div class="purchases-list-header-info" style="width:200px;">
+                                <p class="text-header small">Tên người đấu giá</p>
+                            </div>
+                            <div class="purchases-list-header-recommend" style="width:200px;">
+                                <p class="text-header small">Cấm quyền trên sản phẩm này</p>
+                            </div>
+                            <div class="purchases-list-header-recommend" style="width:200px;">
+                                <p class="text-header small">Cấm quyền trên tất cả sản phẩm</p>
+                            </div>
+                            
+                        </div>
+                        <!-- /PURCHASES LIST HEADER -->
+                        @foreach (var item in ViewBag.History)
+                        {
+                            <!-- PURCHASE ITEM -->
+                            <div class="purchase-item">
+                                <div class="purchase-item-date" style="width:180px;">
+                                    <p>@item.DateAction.Date</p>
+                                </div>
+                                <div class="purchase-item-info" style="width:200px;">
+                                    <br />
+                                    <strong class="category primary text-header" style="font-size:18px;">@item.UserName</strong>
+                                </div>
+                                <div class="purchase-item-recommend" style="width:200px;">
+                                    <div class="recommendation-wrap">
+                                        <form action="@Url.Action("DeniedProduct", "Account", new { productID=Model.ID,userID=item.UserID})" method="post">
+                                            <button type="submit" class="recommendation bad hoverable">
+                                                <span class="icon-user-unfollow icon-center"></span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="purchase-item-recommend" style="width:200px;">
+                                    <div class="recommendation-wrap">
+                                        <form action="@Url.Action("DeniedVendor", "Account", new { vendorID=Model.VendorID,userID=item.UserID,proID=Model.ID})" method="post">
+                                            <button type="submit" class="recommendation bad hoverable">
+                                                <span class="icon-user-unfollow icon-center"></span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        <!-- /PURCHASE ITEM -->
+                                    }
+
+                        <!-- PAGER -->
+                        <div class="pager-wrap">
+                            <div class="pager primary">
+                                <div class="pager-item">
+                                    <a href="?productID=@Model.ID&index=@ViewBag.Previous" aria-label="Previous">
+                                        <p>&laquo;</p>
+                                    </a>
+                                </div>
+                                @for (int i = 1; i <= ViewBag.Pages; i++)
+                                {
+                                    <div class="pager-item"><a href="?productID=@Model.ID&index=@i"><p>@i</p></a></div>
+                                }
+                                <div class="pager-item">
+                                    <a href="?productID=@Model.ID&index=@ViewBag.Next" aria-label="Next">
+                                        <p>&raquo;</p>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /PAGER -->
+                    </div>
+                    <!-- /PURCHASES LIST -->
+                </div>
+                <!-- /POST CONTENT -->
+            </div>
+        </div>
+        <!-- CONTENT -->
+    </div>
+</div>
+<!-- /SECTION -->

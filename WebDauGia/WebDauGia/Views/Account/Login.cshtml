@@ -1,0 +1,69 @@
+﻿
+@{
+    ViewBag.Title = "Đăng nhập";
+}
+@section scripts{
+    <script src="~/Helper/jquery-validate/jquery.validate.min.js"></script>
+    <script type="text/javascript">
+        $("#frmLogin").validate({
+            rules: {
+                Username: {
+                    required:true
+                },
+                Password: {
+                    required: true
+                }
+            },
+            messages: {
+                Username: {
+                    required: "Vui lòng nhập Username !"
+                },
+                Password: {
+                    required: "Vui lòng nhập mật khẩu !"
+                }
+            }
+        });
+    </script>
+}
+@if (ViewBag.ErrorMsg != null)
+{
+    <center>
+        <div class="alert alert-danger" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <strong>Warning!</strong> @ViewBag.ErrorMsg
+        </div>
+    </center>
+}
+<div class="form-popup">
+
+    <!-- FORM POPUP HEADLINE -->
+    <div class="form-popup-headline secondary">
+        <h2>Đăng nhập tài khoản</h2>
+        <p>Đăng nhập tài khoản và bắt đầu đấu giá ngay nào !</p>
+    </div>
+    <!-- /FORM POPUP HEADLINE -->
+    <!-- FORM POPUP CONTENT -->
+    <div class="form-popup-content">
+        <form id="frmLogin" action="@Url.Action("Login","Account")" method="post">
+            <label class="rl-label" for="Username">Username</label>
+            <input name="Username" id="Username" type="text" placeholder="Nhập username của bạn ở đây ...">
+            <label class="rl-label" for="Password">Password</label>
+            <input name="Password" id="Password" type="password" placeholder="Nhập password của bạn ở đây...">
+            <!-- CHECKBOX -->
+            <input name="Remember" id="Remember" type="checkbox" checked="">
+            <label class="label-check" for="Remember">
+                <span class="checkbox primary primary"><span></span></span>
+                Ghi nhớ username và password
+            </label>
+            <label>
+
+            </label>
+
+            <!-- /CHECKBOX -->
+            <p>Bạn đã quên mật khẩu ? <a class="primary" href="#">Click here!</a></p>
+            <button class="button mid dark">Đăng nhập <span class="primary">ngay!</span></button>
+        </form>
+    </div>
+    <!-- /FORM POPUP CONTENT -->
+</div>
+
