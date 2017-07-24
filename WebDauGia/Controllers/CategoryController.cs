@@ -9,7 +9,10 @@ namespace WebDauGia.Controllers
 {
     public class CategoryController : Controller
     {
-        // GET: Category
+        /// <summary>
+        /// Hiển thị danh sách category trên sidebar(cột trái)
+        /// </summary>
+        /// <returns></returns>
         public ActionResult Sidebar()
         {
             using (var db = new WebDauGiaEntities())
@@ -18,7 +21,10 @@ namespace WebDauGia.Controllers
                 return PartialView("_SidebarCategoryPartial", list);
             }
         }
-        // GET: Category
+        /// <summary>
+        /// Hiển thị danh sách category trên navbar
+        /// </summary>
+        /// <returns></returns>
         public ActionResult Index()
         {
             using (var db = new WebDauGiaEntities())

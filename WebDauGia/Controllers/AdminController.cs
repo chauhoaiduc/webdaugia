@@ -18,6 +18,11 @@ namespace WebDauGia.Controllers
 {
     public class AdminController : Controller
     {
+        /// <summary>
+        /// Duyệt cho phép người dùng trở thành người đăng sản phẩm
+        /// </summary>
+        /// <param name="userID"></param>
+        /// <returns></returns>
         [HttpPost]
         public ActionResult ApproveSale(int userID)
         {
@@ -29,6 +34,7 @@ namespace WebDauGia.Controllers
                 user.DateEndSale = DateTime.Now.AddDays(7);
                 db.SaveChanges();
                 string notify = "Đã duyệt thành công !";
+                // khởi tạo nội dung mail
                 var body = new StringBuilder();
                 body.Append($"<h3>Chào {user.Name} !</h2>");
                 body.Append($"<h1 style='color:blue'>Chúc mừng bạn đã trở thành người bán hàng.</h1>");
@@ -41,6 +47,12 @@ namespace WebDauGia.Controllers
                 return RedirectToAction("ApproveSale", "Admin", new {message=notify});
             }
         }
+        /// <summary>
+        /// Hiển thị trang duyệt người dùng trở thành người đăng sản phẩm có phân trang
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
         [CheckLoginAdmin]
         public ActionResult ApproveSale(int? index,string message)
         {
@@ -77,6 +89,11 @@ namespace WebDauGia.Controllers
             }
 
         }
+        /// <summary>
+        /// Thêm thể loại
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
         [HttpPost]
         [CheckLoginAdmin]
         public ActionResult AddCategory(Category item)
@@ -95,6 +112,11 @@ namespace WebDauGia.Controllers
             }
 
         }
+        /// <summary>
+        /// Xóa thể loại
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         // POST: Admin/EditCategory
         [HttpPost]
         [CheckLoginAdmin]
@@ -110,6 +132,11 @@ namespace WebDauGia.Controllers
             }
 
         }
+        /// <summary>
+        /// Chỉnh sửa thông tin thể loại
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [CheckLoginAdmin]
         public ActionResult EditCategory(int? id)
         {
@@ -127,6 +154,11 @@ namespace WebDauGia.Controllers
             }
 
         }
+        /// <summary>
+        /// Hiển thị trang chỉnh sửa thông tin thể loại
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
         [HttpPost]
         public ActionResult EditCategory(Category item)
         {
@@ -140,6 +172,12 @@ namespace WebDauGia.Controllers
             }
 
         }
+        /// <summary>
+        /// hiển thị trang quản lý thể loại
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
         [CheckLoginAdmin]
         public ActionResult ManageCategory(string message, int? index)
         {
@@ -167,6 +205,11 @@ namespace WebDauGia.Controllers
             }
         }
         // POST: ResetPassword
+        /// <summary>
+        ///  Reser password user
+        /// </summary>
+        /// <param name="userID"></param>
+        /// <returns></returns>
         [HttpPost]
         [CheckLoginAdmin]
         public ActionResult ResetPasswordUser(int? userID)
@@ -180,7 +223,7 @@ namespace WebDauGia.Controllers
                 using (var db = new WebDauGiaEntities())
                 {
                     var user = db.Users.Find(userID);
-
+                    // gửi pasword mới cho user
                     var newPWD = StringUtils.RandomString(6);
                     var body = new StringBuilder();
                     body.Append($"<h3>Chào {user.Name} !</h2>");
@@ -198,6 +241,11 @@ namespace WebDauGia.Controllers
                 }
             }
         }
+        /// <summary>
+        /// Xóa user
+        /// </summary>
+        /// <param name="userID"></param>
+        /// <returns></returns>
         [HttpPost]
         public ActionResult RemoveUser(int? userID)
         {
@@ -221,6 +269,12 @@ namespace WebDauGia.Controllers
                 return RedirectToAction("ManageUser", new { message = notify });
             }
         }
+        /// <summary>
+        /// Hiển thị trang quản lý user có phân trang
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
         [CheckLoginAdmin]
         public ActionResult ManageUser(int? index,string message)
         {
@@ -256,6 +310,12 @@ namespace WebDauGia.Controllers
                 return View(list);
             }
         }
+        /// <summary>
+        /// Duyệt cho user đăng sản phẩm
+        /// </summary>
+        /// <param name="productID"></param>
+        /// <param name="vendorID"></param>
+        /// <returns></returns>
         [HttpPost]
         public ActionResult Approve(int productID,int vendorID)
         {
@@ -265,7 +325,7 @@ namespace WebDauGia.Controllers
                 pro.Status = 1;
                 pro.DateEnd = DateTime.Now.AddDays(7);
                 db.SaveChanges();
-
+                //khởi tạo nội dung mail
                 var user = db.Users.Find(vendorID);
                 var image = db.Photos.Where(p => p.ProductID == productID).FirstOrDefault().Name;
                 image = image.Substring(2).Trim();
@@ -287,6 +347,12 @@ namespace WebDauGia.Controllers
             }
                 
         }
+        /// <summary>
+        /// Hiển thị trang duyệt cho user đăng sản phẩm
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
         [CheckLoginAdmin]
         public ActionResult Approve(int? index,string message)
         {

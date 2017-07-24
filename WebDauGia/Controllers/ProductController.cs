@@ -12,6 +12,13 @@ namespace WebDauGia.Controllers
 {
     public class ProductController : Controller
     {
+        /// <summary>
+        /// Kiểm tra sản phẩm có phải là sp user yêu thích hay không?
+        /// trong trang chi tiết sản phẩm
+        /// </summary>
+        /// <param name="productID">id sản phẩm</param>
+        /// <returns>true: nếu đúng; false: ngược lại
+        /// và truyền về _ButtonFavouritesPartialView</returns>
         [CheckLogin]
         public ActionResult CheckFavourites(int productID)
         {
@@ -28,12 +35,12 @@ namespace WebDauGia.Controllers
             }
 
         }
-        // GET: Product
-        public ActionResult Index()
-        {
-            return View();
-        }
 
+        /// <summary>
+        /// Chỉnh sửa thông tin sản phẩm chỉ cho phép thêm mổ tả sản phẩm
+        /// </summary>
+        /// <param name="model"> chứa id sản phẩm và mô tả cần thêm</param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateInput(false)]
         public ActionResult Edit(EditProductViewModel model)
@@ -83,7 +90,13 @@ namespace WebDauGia.Controllers
             }
 
         }
-
+        /// <summary>
+        /// Hiển thị thông tin chi tiết sản phẩm đã đăng
+        /// </summary>
+        /// <param name="productID">id sản phẩm</param>
+        /// <param name="index">vị trí trang danh sách người đấu giá</param>
+        /// <param name="message">thông báo nhận từ 1 hàm khác</param>
+        /// <returns></returns>
         [CheckLogin]
         public ActionResult Edit(int? productID,int? index,string message)
         {
@@ -96,9 +109,11 @@ namespace WebDauGia.Controllers
             {
                 index=1;
             }
+            //lấy id user đang đăng nhập
             var userID = CurrentContext.GetUser().ID;
             using (var db = new WebDauGiaEntities())
             {
+                // lấy thông tin sản phẩm có id = productID và có VendorID = userID
                 var pro = (from p in db.Products
                            join v in db.Users on p.VendorID equals v.ID
                            join w in db.Users on p.Winner equals w.ID
@@ -123,7 +138,7 @@ namespace WebDauGia.Controllers
                                FeedbackVendor = (int)(((double)(v.Positive + v.Negative + 1) / (v.Positive + 1)) * 100),
                                FeedbackWinner = (int)(((double)(w.Positive + w.Negative + 1) / (w.Positive + 1)) * 100),
                            }).FirstOrDefault();
-
+                // Lấy danh sách user tham gia đấu giá sản phẩm
                 var listUser = (from h in db.HistoryAuctions
                                 join u in db.Users on h.UserID equals u.ID
                                 where h.ProductID == productID && h.Denied == 0
@@ -133,6 +148,7 @@ namespace WebDauGia.Controllers
                                     UserName=u.Name,
                                     DateAction=h.DateAction
                                 }).ToList();
+                // phân trang danh sách user vừa tìm được
                 int n = listUser.Count();
                 int take = 6;
 

@@ -24,6 +24,13 @@ namespace WebDauGia.Controllers
 {
     public class AccountController : Controller
     {
+        /// <summary>
+        /// Cấm quyền user đấu giá trên tất cả các sản phẩm mà mình đăng
+        /// </summary>
+        /// <param name="vendorID">id người đăng</param>
+        /// <param name="userID">id user bị cấm</param>
+        /// <param name="proID">id sản phẩm dùng để trả về trang edit</param>
+        /// <returns></returns>
         [CheckLogin]
         public ActionResult DeniedVendor(int vendorID, int userID,int proID)
         {
@@ -31,16 +38,21 @@ namespace WebDauGia.Controllers
 
             using (var db = new WebDauGiaEntities())
             {
+                // Lấy danh sách sản phẩm của người đăng
                 var listpro = db.Products.Where(p => p.VendorID == vendorID).ToList();
-                foreach(var item in listpro)
+                // duyệt qua từng sản phẩm
+                foreach (var item in listpro)
                 {
+                    // thêm id sản phẩm và id user vào bảng DeniedProduct
                     var denied = new DeniedProduct
                     {
                         ProductID = item.ID,
                         UserID = userID
                     };
                     db.DeniedProducts.Add(denied);
-
+                    
+                    // Vào lịch sử đấu giá của sản phẩm xem có user có đang đấu giá hay không ?
+                    // nếu có thì gán Denied =1
                     var listuser = db.HistoryAuctions.Where(h => h.UserID == userID && h.ProductID == item.ID).ToList();
 
                     foreach (var temp in listuser)
@@ -49,23 +61,37 @@ namespace WebDauGia.Controllers
                     }
                     db.SaveChanges();
 
+                    //Lấy thông tin của sản phẩm 
                     var pro = db.Products.Find(item.ID);
-
+                    //Nếu user bị cấm là người giữ giá cao nhất thì chuyển cho người đấu giá thấp hơn
                     if (userID == pro.Winner)
                     {
+                        // hoàn tiền lại cho user 
+                        Refund(item.ID);
+                        // vào lịch sử đấu giá của sản phẩm lấy nhứng user không bị cấm quyền
                         var history = db.HistoryAuctions.Where(h => h.ProductID == item.ID && h.Denied != 1).ToList();
+                        // sắp xếp giảm dần theo giá
                         history = history.OrderByDescending(h => h.Price).ToList();
+                        // bỏ những record có trùng userID
                         history = history.DistinctBy(h => h.UserID).ToList();
-
+                        // Tìm user có giá cao tiếp theo
+                        // với điều kiện user phải có đủ credit
+                        // nếu không có ai thoải điều kiện sản phẩm sẽ quay về giá khởi điểm
                         int flag = 0;
                         if (history.Count > 1)
                         {
                             for (int i = 0; i < history.Count - 1; i++)
                             {
+                                // lấy thông tin user theo history[i].UserID
                                 var user = db.Users.Find(history[i].UserID);
+                                // nếu user đủ credit thì user trở thành người gửi giá
+                                // ngược lại sẽ xóa user ra khỏi lịch sử đấu giá
                                 if (user.Credits > history[i].Price)
                                 {
                                     flag = 1;
+                                    // nếu không có ai đấu giá thấp hơn user 
+                                    // thì giá hiển thị là giá khởi điểm
+                                    // ngược lại giá hiển thị là giá đấu của người đấu giá thấp hơn
                                     if (i + 1 == history.Count)
                                     {
                                         pro.PriceAuction = pro.Price;
@@ -74,7 +100,8 @@ namespace WebDauGia.Controllers
                                     {
                                         pro.PriceAuction = history[i + 1].Price;
                                     }
-
+                                    // gán giá đấu cao nhất của sản phẩm = history[i].Price
+                                    // người gửi giá = history[i].UserID
                                     pro.TopPrice = history[i].Price;
                                     pro.Winner = history[i].UserID;
                                     break;
@@ -115,6 +142,12 @@ namespace WebDauGia.Controllers
             return RedirectToAction("Detail", "Product", new { productID = proID, msgsuccess = notify });
         }
 
+        /// <summary>
+        /// Cấm quyền user đấu giá trên sản phẩm hiện tịa
+        /// </summary>
+        /// <param name="productID">id sản phẩm hiện tại</param>
+        /// <param name="userID">id user bị cấm</param>
+        /// <returns></returns>
         [HttpPost]
         public ActionResult DeniedProduct(int productID, int userID)
         {
@@ -122,6 +155,7 @@ namespace WebDauGia.Controllers
 
             using (var db = new WebDauGiaEntities())
             {
+                // thêm id sản phẩm và id user vào bảng DeniedProduct
                 var denied = new DeniedProduct
                 {
                     ProductID = productID,
@@ -129,6 +163,8 @@ namespace WebDauGia.Controllers
                 };
                 db.DeniedProducts.Add(denied);
 
+                // Vào lịch sử đấu giá của sản phẩm xem có user có đang đấu giá hay không ?
+                // nếu có thì gán Denied =1
                 var listuser = db.HistoryAuctions.Where(h => h.UserID == userID && h.ProductID == productID).ToList();
 
                 foreach (var temp in listuser)
@@ -137,23 +173,37 @@ namespace WebDauGia.Controllers
                 }
                 db.SaveChanges();
 
+                //Lấy thông tin của sản phẩm 
                 var pro = db.Products.Find(productID);
-                HoanTien(productID);
+                //Nếu user bị cấm là người giữ giá cao nhất thì chuyển cho người đấu giá thấp hơn
                 if (userID == pro.Winner)
                 {
+                    //hoàn tiền lại cho user
+                    Refund(productID);
+                    // vào lịch sử đấu giá của sản phẩm lấy nhứng user không bị cấm quyền
                     var history = db.HistoryAuctions.Where(h => h.ProductID == productID && h.Denied != 1).ToList();
+                    // sắp xếp giảm dần theo giá
                     history = history.OrderByDescending(h => h.Price).ToList();
+                    // bỏ những record có trùng userID
                     history = history.DistinctBy(h => h.UserID).ToList();
-
+                    // Tìm user có giá cao tiếp theo
+                    // với điều kiện user phải có đủ credit
+                    // nếu không có ai thoải điều kiện sản phẩm sẽ quay về giá khởi điểm
                     int flag = 0;
                     if (history.Count > 1)
                     {
                         for (int i = 0; i < history.Count - 1; i++)
                         {
+                            // lấy thông tin user theo history[i].UserID
                             var user = db.Users.Find(history[i].UserID);
+                            // nếu user đủ credit thì user trở thành người gửi giá
+                            // ngược lại sẽ xóa user ra khỏi lịch sử đấu giá
                             if (user.Credits > history[i].Price)
                             {
                                 flag = 1;
+                                // nếu không có ai đấu giá thấp hơn user 
+                                // thì giá hiển thị là giá khởi điểm
+                                // ngược lại giá hiển thị là giá đấu của người đấu giá thấp hơn
                                 if (i + 1 == history.Count)
                                 {
                                     pro.PriceAuction = pro.Price;
@@ -162,7 +212,8 @@ namespace WebDauGia.Controllers
                                 {
                                     pro.PriceAuction = history[i + 1].Price;
                                 }
-
+                                // gán giá đấu cao nhất của sản phẩm = history[i].Price
+                                // người gửi giá = history[i].UserID
                                 pro.TopPrice = history[i].Price;
                                 pro.Winner = history[i].UserID;
                                 break;
@@ -197,19 +248,25 @@ namespace WebDauGia.Controllers
                     }
                 }
                 db.SaveChanges();
-                TruTien(productID,0);
+                DecreaseCredits(productID,0);
                 notify = "Cấm quyền user thành công !";
             }
 
             return RedirectToAction("Detail", "Product", new { productID = productID, msgsuccess = notify });
-
-
         }
+        /// <summary>
+        /// Hiện thị trang mua chức năng đấu giá
+        /// </summary>
+        /// <returns></returns>
         public ActionResult BecomeSeller()
         {
             return View();
             
         }
+        /// <summary>
+        /// User đăng ký trở thành người đăng sản phẩm
+        /// </summary>
+        /// <returns></returns>
         [HttpPost]
         public ActionResult Seller()
         {
@@ -218,39 +275,48 @@ namespace WebDauGia.Controllers
             {
                 var user = db.Users.Find(userID);
                 user.SaleStatus = 1;
-                user.Credits += 100;
+                user.Credits -= 100;
                 db.SaveChanges();
                 Session["user"] = user;
                 ViewBag.MsgSuccess = "Bạn đã mua chức năng thành vui lòng đợi admin duyệt.";
                 return View("BecomeSeller");
             }
         }
+        /// <summary>
+        /// Kiểm tra những sản phẩm đã hết hạn
+        /// </summary>
+        /// <param name="db"></param>
         public static void CheckTimeOut(WebDauGiaEntities db)
         {
-            var list = db.Products;
+            // lấy danh sách tất cả sản phẩm
+            var list = db.Products.Where(p => p.Status == 1);
             foreach (var item in list)
             {
-                if (item.Status == 1)
+                // Nếu đã hết hạn thì bật status = 2
+                if (item.DateEnd < DateTime.Now)
                 {
-                    if (item.DateEnd < DateTime.Now)
+                    item.Status = 2;
+                    // trừ tiền người gửi giá cao nhất có gửi email thông báo
+                    // tăng tiền cho người đăng sản phẩm có gửi email thông báo
+                    if (item.Winner != item.VendorID)
                     {
-                        item.Status = 2;
-                        if (item.Winner != item.VendorID)
-                        {
-                            TruTien(item.ID, 1);
-                            ThemTienNguoiBan(item.ID);
-                        }
-                        else
-                        {
-                            GuiMailNguoiBan(item.ID, 0);
-                        }
-
+                        DecreaseCredits(item.ID, 1);
+                        IncreaseCredits(item.ID);
+                    }
+                    else
+                    {
+                        // nếu không có ai mua thông báo cho người đăng
+                        GuiMailNguoiBan(item.ID, 0);
                     }
                 }
             }
             db.SaveChanges();
         }
-        // Het Thời Gian Đấu Giá
+        /// <summary>
+        /// Sản phẩm hết thời gian Khi đang ở trang chi tiết sản phẩm
+        /// </summary>
+        /// <param name="ID"></param>
+        /// <returns></returns>
         [HttpPost]
         public ActionResult Timeout(int ID)
         {
@@ -261,8 +327,8 @@ namespace WebDauGia.Controllers
                 db.SaveChanges();
                 if (pro.Winner != pro.VendorID)
                 {
-                    TruTien(ID, 1);
-                    ThemTienNguoiBan(ID);
+                    DecreaseCredits(ID, 1);
+                    IncreaseCredits(ID);
                 }
                 else
                 {
@@ -272,14 +338,21 @@ namespace WebDauGia.Controllers
             }
                 
         }
+        /// <summary>
+        /// Mua sản phẩm ngay không cần đấu giá
+        /// </summary>
+        /// <param name="productID"></param>
+        /// <returns></returns>
         [HttpPost]
         [CheckLogin]
         public ActionResult BuyItNow(int productID)
         {
             using (var db = new WebDauGiaEntities())
             {
+                // lấy thông tin sản phẩm và user đang đăng nhập
                 var pro = db.Products.Find(productID);
                 var uc = CurrentContext.GetUser();
+                // nếu credits của user không đủ để mua sản phẩm sẽ thông báo
                 if (uc.Credits < pro.BuyNowPice)
                 {
                     string notify = "Xin lỗi bạn không đủ tiền mua sản phẩm này";
@@ -287,14 +360,17 @@ namespace WebDauGia.Controllers
                 }
                 else
                 {
-                    HoanTien(productID);
+                    // ngược lại hoàn tiền cho người gửi giá cao nhất
+                    Refund(productID);
+                    // gán giá cao nhất của sản phẩm và giá đấu = giá mua ngay
                     pro.TopPrice = pro.BuyNowPice;
                     pro.PriceAuction = pro.BuyNowPice;
                     pro.Winner = CurrentContext.GetUser().ID;
                     pro.Status = 2;
                     db.SaveChanges();
-                    TruTien(productID, 1);
-                    ThemTienNguoiBan(productID);
+                    // trừ tiền user và tăng tiền cho người bán có gửi email thông báo
+                    DecreaseCredits(productID, 1);
+                    IncreaseCredits(productID);
                     var vendor = (from u in db.Users where u.ID == pro.VendorID select u.Name).ToString();
                     var list = new BuyItNowSuccessViewModel
                     {
@@ -311,6 +387,12 @@ namespace WebDauGia.Controllers
 
             }
         }
+        /// <summary>
+        /// Hiển thị Danh sách sản phẩm đăng đã có người mua có phân trang
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
         [CheckLogin]
         public ActionResult SaleProduct(int? index, string message)
         {
@@ -352,6 +434,11 @@ namespace WebDauGia.Controllers
                 return View(pro);
             }
         }
+        /// <summary>
+        /// Hiển thị trang Quản lý danh sách sản phẩm đã đăng chưa hết hạn
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         [CheckLogin]
         public ActionResult ManageItems(int? index)
         {
@@ -399,6 +486,11 @@ namespace WebDauGia.Controllers
                 return View(list);
             }
         }
+        /// <summary>
+        /// Đăng sản phẩm
+        /// </summary>
+        /// <param name="pro"></param>
+        /// <returns></returns>
         [HttpPost]
         [CheckLogin]
         [ValidateInput(false)]
@@ -406,10 +498,12 @@ namespace WebDauGia.Controllers
         {
             using (var db = new WebDauGiaEntities())
             {
+                // khởi 1 selectList từ danh sách catgory
                 var list = new SelectList(db.Categories.ToList(), "ID", "Name");
 
                 var product = new Product();
-                //Create photos product
+                // thêm hình sản phẩm
+                // flag dùng để kiểm tra user phải chọn ít nhất 1 hình sản phẩm
                 int flag = 0;
                 for (int i = 0; i < Request.Files.Count; i++)
                 {
@@ -418,12 +512,15 @@ namespace WebDauGia.Controllers
                     {
                         flag = 1;
                         string[] fileExtensions = new string[] { ".jpg", ".png" };
-
+                        // kiểm tra định dạng file là .jpg hoặc .png
                         if (fileExtensions.Contains(Path.GetExtension(file.FileName).ToLower()))
                         {
+                            // lấy tên file
                             var fileName = Path.GetFileName(file.FileName);
+                            // tạo đường dẫn và lưu hình ảnh
                             var path = Path.Combine(Server.MapPath($"~/Images/{pro.CategoryID}/"), fileName);
                             file.SaveAs(path);
+                            // lưu hình ảnh vào cơ sở dữ liệu
                             var image = new Photo();
                             image.Name = $"~/Images/{pro.CategoryID}/{fileName}";
                             image.ProductID = product.ID;
@@ -442,8 +539,10 @@ namespace WebDauGia.Controllers
                     return View(list);
                 }
 
-                //Create product
+                // Lưu sản phẩm vào cở sở dử liệu
                 int userID = CurrentContext.GetUser().ID;
+                // kiểm tra xem có mua chức năng tự động gia hạn không?
+                // nếu có user sẽ bị trừ 10 credits
                 if (Request.Form.GetValues("AutoExtend") != null)
                 {
                     product.AutoExtend = true;
@@ -472,6 +571,7 @@ namespace WebDauGia.Controllers
                 product.StepPrice = pro.StepPrice;
                 product.Descrition = pro.Des;
                 product.VendorID = product.Winner = userID;
+                // Kiểm tra xem có giá mua ngay không ?
                 if (Request.Form.GetValues("ShowBuyItNow") != null)
                 {
                     product.BuyNowPice = pro.BuyNowPrice;
@@ -488,6 +588,10 @@ namespace WebDauGia.Controllers
                 return View(list);
             }
         }
+        /// <summary>
+        /// Hiển thị trang đăng sản phẩm
+        /// </summary>
+        /// <returns></returns>
         [CheckLogin]
         public ActionResult UploadItem()
         {
@@ -502,13 +606,21 @@ namespace WebDauGia.Controllers
                 return View(list);
             }
         }
+        /// <summary>
+        /// Đánh giá của người đăng dành cho người chiến thắng
+        /// </summary>
+        /// <param name="model">chứa id người chiến thắng ,
+        /// comment, điểm đánh giá của người đăng dành cho người chiến thắng</param>
+        /// <returns></returns>
         [CheckLogin]
         [HttpPost]
         public ActionResult CommentWinner(CommentUserViewModel model)
         {
+            // lấy id người đăng
             int userID = CurrentContext.GetUser().ID;
             using (var db = new WebDauGiaEntities())
             {
+                // Thêm thông tin comment vào csdl
                 var cm = new CommentWinner
                 {
                     ProductID = model.ProductID,
@@ -518,7 +630,9 @@ namespace WebDauGia.Controllers
                     Point = model.Point
                 };
                 db.CommentWinners.Add(cm);
+                // lấy thông tin người chiến thắng
                 var user = db.Users.Find(model.UserID);
+                // nếu Point > 0 thì tăng điểm tích cực của người đấu giá thêm 1
                 if (model.Point > 0)
                 {
                     user.Positive += 1;
@@ -532,13 +646,21 @@ namespace WebDauGia.Controllers
                 return RedirectToAction("SaleProduct", "Account", new { message = notify });
             }
         }
+        /// <summary>
+        /// Đánh giá của người chiến thắng dành cho người đăng
+        /// </summary>
+        /// <param name="model">chứa id người đăng ,
+        /// comment, điểm đánh giá của người chiến thắng dành cho người đăng</param>
+        /// <returns></returns>
         [CheckLogin]
         [HttpPost]
         public ActionResult CommentVendor(CommentUserViewModel model)
         {
+            // lấy id người chiến thắng
             int userID = CurrentContext.GetUser().ID;
             using (var db = new WebDauGiaEntities())
             {
+                // Thêm thông tin comment vào csdl
                 var cm = new CommentVendor
                 {
                     ProductID = model.ProductID,
@@ -548,7 +670,9 @@ namespace WebDauGia.Controllers
                     Point = model.Point
                 };
                 db.CommentVendors.Add(cm);
+                // lấy thông tin người đăng
                 var user = db.Users.Find(model.UserID);
+                // nếu Point > 0 thì tăng điểm tích cực của người đấu giá thêm 1
                 if (model.Point > 0)
                 {
                     user.Positive += 1;
@@ -562,6 +686,12 @@ namespace WebDauGia.Controllers
                 return RedirectToAction("WinProduct", "Account", new { message = notify });
             }
         }
+        /// <summary>
+        /// Hiển thị danh sách sản phẩm đã chiến thắng đấu giá có phân trang
+        /// </summary>
+        /// <param name="index">số trang hiện tại</param>
+        /// <param name="message">Nhận thông báo từ 1 hàm khác</param>
+        /// <returns></returns>
         [CheckLogin]
         public ActionResult WinProduct(int? index, string message)
         {
@@ -605,6 +735,11 @@ namespace WebDauGia.Controllers
             }
 
         }
+        /// <summary>
+        /// Hiển thị danh sách sản phẩm đang tham giá đấu giá
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         [CheckLogin]
         public ActionResult JoiningAuction(int? index)
         {
@@ -656,6 +791,12 @@ namespace WebDauGia.Controllers
             }
 
         }
+        /// <summary>
+        /// Hiển thị danh sách sản phẩm yêu thích
+        /// </summary>
+        /// <param name="search"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
         [CheckLogin]
         public ActionResult WatchList(string search,int? index)
         {
@@ -713,6 +854,11 @@ namespace WebDauGia.Controllers
             }
 
         }
+        /// <summary>
+        /// Chỉnh sửa thông tin cá nhân user
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         public ActionResult Setting(SettingViewModel model)
         {
@@ -720,6 +866,7 @@ namespace WebDauGia.Controllers
             {
                 var user = db.Users.Find(CurrentContext.GetUser().ID);
                 HttpPostedFileBase file = Request.Files[0];
+                // thay đổi hình ảnh đại diện
                 if (file != null && file.ContentLength > 0)
                 {
                     string[] fileExtensions = new string[] { ".jpg", ".png" };
@@ -737,6 +884,7 @@ namespace WebDauGia.Controllers
                         return View();
                     }
                 }
+                // thay đổi password yêu cầu nhập password cũ
                 if (model.OldPassword != null)
                 {
                     if (!model.OldPassword.Equals(StringUtils.Md5(model.OldPassword)))
@@ -752,7 +900,7 @@ namespace WebDauGia.Controllers
                 {
                     user.Password = StringUtils.Md5(model.NewPassword);
                 }
-
+                // Thay đổi địa chỉ email yêu cầu xác nhận email
                 if (!user.Email.Trim().Equals(model.Email))
                 {
                     user.Email = model.Email;
@@ -783,6 +931,10 @@ namespace WebDauGia.Controllers
             }
 
         }
+        /// <summary>
+        /// Hiển thị trang cài đặt tài khoản
+        /// </summary>
+        /// <returns></returns>
         [CheckLogin]
         public ActionResult Setting()
         {
@@ -801,6 +953,11 @@ namespace WebDauGia.Controllers
             }
 
         }
+        /// <summary>
+        /// Hiển thị danh sách bình luận của user
+        /// </summary>
+        /// <param name="userID"></param>
+        /// <returns>Trả về _ListCommentPartialView</returns>
         public ActionResult ListComment(int userID)
         {
             using (var db = new WebDauGiaEntities())
@@ -832,7 +989,11 @@ namespace WebDauGia.Controllers
             }
 
         }
-
+        /// <summary>
+        /// Hiển thị trang cá nhân của user
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public ActionResult ProfileUser(int? id)
         {
             if (!id.HasValue)
@@ -855,7 +1016,11 @@ namespace WebDauGia.Controllers
             }
 
         }
-
+        /// <summary>
+        /// Hiển thị trang lịch sử đấu giá của người dùng
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
         [CheckLogin]
         public ActionResult HistoryAuction(int? index)
         {
@@ -904,16 +1069,24 @@ namespace WebDauGia.Controllers
                 return View(list);
             }
         }
-        public static void HoanTien(int productID)
+        /// <summary>
+        /// Hàm hoàn tiền cho người gửi giá cao nhất có gửi mail
+        /// </summary>
+        /// <param name="productID"></param>
+        public static void Refund(int productID)
         {
             using (var db = new WebDauGiaEntities())
             {
+                // lấy thông tin sản phẩm và user
                 var pro = db.Products.Find(productID);
                 var user = db.Users.Find(pro.Winner);
+                // hoàn tiền cho user
                 user.Credits += pro.TopPrice;
                 db.SaveChanges();
+                // lấy đường dẫn của hình sản phẩm
                 var image = db.Photos.Where(p => p.ProductID == productID).FirstOrDefault().Name;
                 image = image.Substring(2).Trim();
+                // khởi tạo nội dung mail
                 var body = new StringBuilder();
                 body.Append($"<h3>Chào {user.Name} !</h3>");
                 body.Append($"<h1 style='color:red;'>Sản phẩm mà bạn đang đấu giá đã có người đấu giá cao hơn.</h1>");
@@ -923,31 +1096,47 @@ namespace WebDauGia.Controllers
                 body.Append($"<h3 style='color:red;'>Số tiền bạn được hoàn lại là: {pro.TopPrice}$</h3>");
                 body.Append($"<h3>Thời gian kết thúc đấu giá của sản phẩm là: <span style='color:red;'>{pro.DateEnd}</span></h3>");
                 body.Append($"<h3>Nếu bạn muốn trở thành người sở hửu sản phẩm hãy nhấn <a href='http://localhost:62902/Product/Detail?productID={pro.ID}'>tại đây.</a></h3>");
+                // khởi tạo resource lưu hình ảnh
                 LinkedResource yourPictureRes = new LinkedResource(Path.Combine(HttpRuntime.AppDomainAppPath, image));
                 yourPictureRes.ContentId = "MyPic";
+                // gửi mail
                 Email.Send(user.Email, "[Thế Giới Ngầm] Hoàn tiền.", body, yourPictureRes);
             }
         }
-
-        public static void TruTien(int productID,int index)
+        /// <summary>
+        /// Hàm thêm tiền cho người bán có gửi mail
+        /// </summary>
+        /// <param name="productID">id sản phẩm</param>
+        /// <param name="index">index = 1 gửi mail user là người chiến thắng; index =2 gửi mail user là người giử giá</param>
+        public static void DecreaseCredits(int productID, int index)
         {
+
             using (var db = new WebDauGiaEntities())
             {
+                // lấy thông tin sản phẩm và user
                 var pro = db.Products.Find(productID);
                 var user = db.Users.Find(pro.Winner);
+                // trừ tiền 
                 user.Credits -= pro.TopPrice;
                 db.SaveChanges();
-                if (CurrentContext.GetUser().ID == user.ID)
+                // nếu user đang đăng nhập thì cập nhật session
+                if (CurrentContext.IsLogged() == true)
                 {
-                    System.Web.HttpContext.Current.Session["user"] = user;
+                    if (CurrentContext.GetUser().ID == user.ID)
+                    {
+                        System.Web.HttpContext.Current.Session["user"] = user;
+                    }
                 }
+                // lấy thông tin người đăng
                 var vendor = db.Users.Find(pro.VendorID);
+                // lấy đường dẫn hình sản phẩm
                 var image = db.Photos.Where(p => p.ProductID == productID).FirstOrDefault().Name;
                 image = image.Substring(2).Trim();
+                // khởi tạo nội dung mail
                 var body = new StringBuilder();
                 body.Append($"<h3>Chào {user.Name} !</h2>");
                 string subject;
-                if (index==1)
+                if (index == 1)
                 {
                     subject = "Chúc mừng bạn đã chiến thắng đấu giá sản phẩm.";
                     body.Append($"<h1 style='color:blue'>{subject}</h1>");
@@ -959,7 +1148,7 @@ namespace WebDauGia.Controllers
                 }
                 body.Append($"<h1 style='color:blue'>Sản phẩm {pro.Name}</h1>");
                 body.Append($"<img style='width:300px;height:400px;' src=cid:MyPic>");
-                if (index==1)
+                if (index == 1)
                 {
                     body.Append($"<h3 style='color:blue;'>Bạn đã chiến thắng sản phẩm với giá: {pro.PriceAuction}$</h3>");
                     body.Append($"<h3 >Email của người bán là: <span style='color:red'>{vendor.Email}</span></h3>");
@@ -971,25 +1160,34 @@ namespace WebDauGia.Controllers
                     body.Append($"<h3 style='color:blue;'>Số tiền bạn đã đấu giá là: {pro.TopPrice}$</h3>");
                     body.Append($"<h3>Thời gian kết thúc đấu giá của sản phẩm là: <span style='color:red;'>{pro.DateEnd}</span></h3>");
                 }
-                
+
                 body.Append($"<h3>Bạn có thể xem chi tiết sản phẩm <a href='http://localhost:62902/Product/Detail?productID={pro.ID}'>tại đây.</a></h3>");
                 LinkedResource yourPictureRes = new LinkedResource(Path.Combine(HttpRuntime.AppDomainAppPath, image));
                 yourPictureRes.ContentId = "MyPic";
                 Email.Send(user.Email, $"[Thế Giới Ngầm] {subject}", body, yourPictureRes);
             }
-        }
 
-        public static void ThemTienNguoiBan(int productID)
+        }
+        /// <summary>
+        /// Tăng tiền cho người đăng
+        /// </summary>
+        /// <param name="productID"></param>
+        public static void IncreaseCredits(int productID)
         {
             using (var db = new WebDauGiaEntities())
             {
+                // lấy thông tin sản phẩm và người đăng
                 var pro = db.Products.Find(productID);
                 var user = db.Users.Find(pro.VendorID);
+                // tăng tiền cho người đăng
                 user.Credits += pro.TopPrice;
                 db.SaveChanges();
+                // lấy thông tin người chiến thắng
                 var winner = db.Users.Find(pro.Winner);
+                // lấy đường dẫn hình sản phẩm
                 var image = db.Photos.Where(p => p.ProductID == productID).FirstOrDefault().Name;
                 image = image.Substring(2).Trim();
+                // khởi tạo nội dung mail
                 var body = new StringBuilder();
                 body.Append($"<h3>Chào {user.Name} !</h3>");
                 body.Append($"<h1 style='color:green;'>Chúc mừng bạn sản phẩm mà bạn đăng đã có người mua.</h1>");
@@ -1000,12 +1198,17 @@ namespace WebDauGia.Controllers
                 body.Append($"<h3 >Email của người thắng là: <span style='color:red'>{winner.Email}</span></h3>");
                 body.Append($"<h3 style='color:red;'>Vui lòng liên hệ với người mua để giao hàng nếu trong vòng 7 ngày không giao hàng bạn sẽ bị xóa tài khoản.</h3>");
                 body.Append($"<h3>Nếu bạn muốn trở thành người sở hửu sản phẩm hãy nhấn <a href='http://localhost:62902/Product/Detail?productID={pro.ID}'>tại đây.</a></h3>");
+                // tạo resource chưa hình ảnh gửi mail
                 LinkedResource yourPictureRes = new LinkedResource(Path.Combine(HttpRuntime.AppDomainAppPath, image));
                 yourPictureRes.ContentId = "MyPic";
                 Email.Send(user.Email, "[Thế Giới Ngầm] Chúc mừng bạn đã bán sản phẩm thành công.", body, yourPictureRes);
             }
         }
-
+        /// <summary>
+        /// Gửi email thông báo người đăng
+        /// </summary>
+        /// <param name="productID"></param>
+        /// <param name="index">index =0 thông báo sản phẩm đã kết thúc và không có người mua;index =1 sản phẩm đã có người đấu giá</param>
         public static void GuiMailNguoiBan(int productID,int index)
         {
             using (var db = new WebDauGiaEntities())
@@ -1040,12 +1243,17 @@ namespace WebDauGia.Controllers
                 Email.Send(user.Email, $"[Thế Giới Ngầm] {subject}", body, yourPictureRes);
             }
         }
-
+        /// <summary>
+        /// Đấu giá
+        /// </summary>
+        /// <param name="productID"></param>
+        /// <param name="auction"></param>
+        /// <returns></returns>
         [HttpPost]
         public ActionResult Auction(int productID, int auction)
         {
             string error=null,success=null;
-
+            //kiểm tra user có đủ credits không
             if (CurrentContext.GetUser().Credits < auction)
             {
                 error = "Bạn không đủ Credits để đấu giá !";
@@ -1054,6 +1262,7 @@ namespace WebDauGia.Controllers
             {
                 using (var db = new WebDauGiaEntities())
                 {
+                    //Thêm vào lịch sử đấu giá của sản phẩm
                     var pro = db.Products.Find(productID);
                     var userID = CurrentContext.GetUser().ID;
                     var auc = new HistoryAuction();
@@ -1064,7 +1273,8 @@ namespace WebDauGia.Controllers
                     auc.Denied = 0;
                     db.HistoryAuctions.Add(auc);
                     db.SaveChanges();
-
+                    // nếu giá đấu < giá đấu cao nhất thông báo cho user
+                    // giá hiện tại sẽ = giá đấu + bước giá 
                     if (auction <= pro.TopPrice)
                     {
                         pro.PriceAuction = auction + pro.StepPrice;
@@ -1073,15 +1283,18 @@ namespace WebDauGia.Controllers
                     }
                     else
                     {
+                        // ngược lại giá hoàn tiền cho người gửi giá trước đó
                         if (pro.Winner != pro.VendorID)
                         {
-                            HoanTien(productID);
+                            Refund(productID);
                         }
-
+                        // giá hiện tại = giá đấu của người gửi giá trước đó + bước giá
                         pro.PriceAuction= pro.TopPrice + pro.StepPrice;
+                        // giá đấu cao nhất của sp  = giá đấu của user
                         pro.TopPrice = auction;
                         pro.Winner = userID;
-
+                        // nếu người đăng có mua chức năng tự gia hạn
+                        // hệ thống sẽ gia hạn thêm 10p khi còn dưới 5p mà có người tham gia đấu giá
                         if (pro.AutoExtend == true)
                         {
                             if (DateTime.Now >= pro.DateEnd.Value.AddMinutes(-5) && DateTime.Now < pro.DateEnd.Value)
@@ -1091,7 +1304,9 @@ namespace WebDauGia.Controllers
                         }
 
                         db.SaveChanges();
-                        TruTien(productID,0);
+                        // trừ tiền người đấu giá
+                        DecreaseCredits(productID,0);
+                        // gửi mail người đăng
                         GuiMailNguoiBan(productID,1);
                         success = "Chúc mừng bạn đã đấu giá thành công !";
                     }
@@ -1099,11 +1314,18 @@ namespace WebDauGia.Controllers
             }
             return RedirectToAction("Detail", "Product", new { productID = productID, msgerror = error,msgsuccess=success });
         }
+        /// <summary>
+        /// Hàm thêm sản phẩm vào danh sách yêu thích
+        /// </summary>
+        /// <param name="productID"></param>
+        /// <param name="userID"></param>
         public void Watching(int productID, int userID)
         {
             using (var db = new WebDauGiaEntities())
             {
+                // tìm xem sản phẩm đã có trong danh sách sản phẩm yêu thích của user chưa
                 var watch = db.WatchLists.Where(w => w.ProductID == productID && w.UserID == userID).FirstOrDefault();
+                // nếu chưa có thì thêm vào
                 if (watch == null)
                 {
                     watch = new WatchList
@@ -1115,6 +1337,7 @@ namespace WebDauGia.Controllers
                 }
                 else
                 {
+                    // ngược lại nếu có rồi thì xóa
                     db.Entry(watch).State = System.Data.Entity.EntityState.Deleted;
                 }
 
@@ -1123,6 +1346,10 @@ namespace WebDauGia.Controllers
         }
 
         // Post: Account/Logout
+        /// <summary>
+        /// Đăng xuất
+        /// </summary>
+        /// <returns></returns>
         [HttpPost]
         public ActionResult Logout()
         {
@@ -1131,6 +1358,10 @@ namespace WebDauGia.Controllers
         }
 
         // GET: Account/Login
+        /// <summary>
+        /// Hiển thị trang Đăng nhập
+        /// </summary>
+        /// <returns></returns>
         public ActionResult Login()
         {
             if (CurrentContext.IsLogged())
@@ -1143,7 +1374,11 @@ namespace WebDauGia.Controllers
             }
 
         }
-
+        /// <summary>
+        /// Đăng nhập
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         // POST: Account/Login
         [HttpPost]
         public ActionResult Login(LoginViewModel model)
@@ -1174,12 +1409,20 @@ namespace WebDauGia.Controllers
 
         }
 
-
+        /// <summary>
+        /// Hiển thị trang xác thực email
+        /// </summary>
+        /// <returns></returns>
         [CheckLogin]
         public ActionResult ComfirmEmail()
         {
             return View();
         }
+        /// <summary>
+        /// Xác thực email
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
         public ActionResult ComfirmEmail(ComfirmEmailViewModel model)
         {
@@ -1200,6 +1443,10 @@ namespace WebDauGia.Controllers
                 }
             }
         }
+        /// <summary>
+        /// Hiển thị trang Đăng ký
+        /// </summary>
+        /// <returns></returns>
         // GET: Account/Register
         public ActionResult Register()
         {
@@ -1212,6 +1459,11 @@ namespace WebDauGia.Controllers
                 return View();
             }
         }
+        /// <summary>
+        /// Kiểm tra email không trùng
+        /// </summary>
+        /// <param name="email"></param>
+        /// <returns></returns>
         public int CheckEmail(string email)
         {
             using (var db= new WebDauGiaEntities())
@@ -1228,10 +1480,17 @@ namespace WebDauGia.Controllers
             }           
         }
         // Post: Account/Register
+        /// <summary>
+        /// Đăng ký tài khoản
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         [HttpPost]
+        // kiểm tra captcha
         [CaptchaValidation("CaptchaCode", "ExampleCaptcha", "Incorrect CAPTCHA code!")]
         public ActionResult Register(RegisterViewModel model)
         {
+            //kiểm tra email đã sử dụng hay chưa
             if (CheckEmail(model.Email)==0)
             {
                 ViewBag.ErrorMsg = "Email đã tồn tại!";
@@ -1244,7 +1503,9 @@ namespace WebDauGia.Controllers
             }
             else
             {
+                // khởi tạo mã xác thực
                 string code = StringUtils.RandomString(6);
+                // khởi tạo user
                 User u = new User
                 {
                     UserName = model.Username,
@@ -1268,8 +1529,10 @@ namespace WebDauGia.Controllers
                     data.Users.Add(u);
                     data.SaveChanges();
                 }
+                //lưu session
                 Session["isLogin"] = 1;
                 Session["user"] = u;
+                // khởi tạo nội dung email
                 StringBuilder str = new StringBuilder();
                 str.Append("<h1>Xác nhận email</h1>");
                 str.Append($"<h3>Chào {u.Name} !</h1>");

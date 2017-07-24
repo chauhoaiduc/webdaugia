@@ -12,6 +12,13 @@ namespace WebDauGia.Controllers
 {
     public class HomeController : Controller
     {
+        /// <summary>
+        /// Kiểm tra sản phẩm có phải lá sp của user yêu thích không ?
+        /// </summary>
+        /// <param name="productID">id sản phẩm</param>
+        /// <returns>true : nếu là sản phẩm user yêu thích
+        /// false: ngược lại 
+        /// và truyền về _FavouritesPartialView</returns>
         [CheckLogin]
         public ActionResult CheckFavourites(int productID)
         {
@@ -86,6 +93,7 @@ namespace WebDauGia.Controllers
         {
             using (var db = new WebDauGiaEntities())
             {
+                // Kiểm tra sản phẩm hết hạn
                 AccountController.CheckTimeOut(db);
                 // Truy vấn lấy thông tin tất cả sản phẩm
                 var list = (from p in db.Products
@@ -130,7 +138,7 @@ namespace WebDauGia.Controllers
         /// <summary>
         /// Lấy danh sách tên tất cả các sản phẩm để autocomplete
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="name">từ khoá tìm kiếm</param>
         /// <returns></returns>
         public JsonResult Autocomplete(string name)
         {
@@ -141,18 +149,6 @@ namespace WebDauGia.Controllers
             return Json(pro, JsonRequestBehavior.AllowGet);
 
         }
-        public ActionResult About()
-        {
-            ViewBag.Message = "Your application description page.";
-
-            return View();
-        }
-
-        public ActionResult Contact()
-        {
-            ViewBag.Message = "Your contact page.";
-
-            return View();
-        }
+        
     }
 }
